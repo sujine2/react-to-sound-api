@@ -1,18 +1,20 @@
-package org.sujine.reacttosoundapi.voiceColor.controller.base;
+package org.sujine.reacttosoundapi.voiceColor.controller;
 
 import jakarta.websocket.*;
+import org.sujine.reacttosoundapi.voiceColor.controller.formatter.ResponseRGBJOSNDecoder;
+import org.sujine.reacttosoundapi.voiceColor.dto.ResponseRGB;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
 
-@ClientEndpoint
-public class BaseClient {
+@ClientEndpoint(decoders = {ResponseRGBJOSNDecoder.class})
+public class BasicClient {
     Session session = null;
     private MessageHandler handler;
 
-    public BaseClient(URI endpointURI) {
+    public BasicClient(URI endpointURI) {
         try {
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
             container.connectToServer(this, endpointURI);
@@ -31,26 +33,26 @@ public class BaseClient {
         }
     }
 
-    public void addMessageHandler(MessageHandler msgHandler) {
-        this.handler = msgHandler;
+    public void sendAudiStream(byte[] stream) throws IOException{
+        session.getBasicRemote().sendBinary(ByteBuffer.wrap(stream));
     }
 
     @OnMessage
-    public void processMessage(String message) {
-        System.out.println("Received message in client: " + message);
+    public void onMessage(Session session, ResponseRGB[] msg) {
+        System.out.println(msg.toString());
     }
 
-    public void sendMessage(String message) {
-        try {
-            this.session.getBasicRemote().sendText(message);
-        } catch (IOException ex) {
-            Logger.getLogger(BaseClient.class.getName()).log(Level.SEVERE, null, ex);
-        }
+    @OnMessage
+    public void onMessage(Session session, byte[] msg) {
+        System.out.println(msg);
     }
 
-
-    public static interface MessageHandler {
-
-        public void handleMessage(String message);
+    @OnClose
+    public void onClose(Session session, CloseReason closeReason) {
     }
+
+    public void Disconnect() throws IOException {
+        session.close();
+    }
+
 }

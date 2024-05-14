@@ -1,62 +1,67 @@
 package org.sujine.reacttosoundapi.voiceColor.controller;
 
-import jakarta.websocket.EncodeException;
-import jakarta.websocket.OnMessage;
-import jakarta.websocket.OnOpen;
-import jakarta.websocket.Session;
+import jakarta.websocket.*;
 import jakarta.websocket.server.ServerEndpoint;
-import jakarta.ws.rs.PathParam;
-import org.apache.logging.log4j.message.Message;
-import org.sujine.reacttosoundapi.voiceColor.dto.RequestRawAudioStream;
+import org.sujine.reacttosoundapi.voiceColor.controller.formatter.RequestAudioStreamJSONDecoder;
+import org.sujine.reacttosoundapi.voiceColor.controller.formatter.ResponseRGBJSONEncoder;
+import org.sujine.reacttosoundapi.voiceColor.dto.RequestAudioStreamData;
+import org.sujine.reacttosoundapi.voiceColor.service.VoiceService;
 
+import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.IOException;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-@ServerEndpoint(value = "/voiceColor/{clientId}")
+@ServerEndpoint(value = "/voiceColor",
+                encoders = {ResponseRGBJSONEncoder.class},
+                decoders = {RequestAudioStreamJSONDecoder.class}
+)
 public class VoiceColorEndpoint {
     private static Set<Session> sessions = new CopyOnWriteArraySet<>();
-    private static Map<String, Session> requesters = null;
 
     @OnOpen
-    public void onOpen(Session session, @PathParam("clientId") String clientId) throws IOException, EncodeException {
-        requesters.put(clientId, session);
+    public void onOpen(Session session) throws IOException {
         sessions.add(session);
-        sendString("welcome", clientId);
+        System.out.println("Client " + session.getId() + " opened");
+        session.getBasicRemote().sendText("welcome" + session.getId());
     }
 
     @OnMessage
-    public void onMessage(Session session, RequestRawAudioStream message) throws IOException, EncodeException {
-
+    public void onMessage(Session session, RequestAudioStreamData message)
+            throws IOException, IllegalArgumentException, EncodeException {
+        session.getBasicRemote().sendObject(VoiceService.getMainVoiceColor(message));
     }
 
-    private static void sendString(String message, String clientId) throws IOException, EncodeException {
+    @OnClose
+    public void onClose(Session session) throws IOException {
+        sessions.remove(session);
+        System.out.println("Client " + session.getId() + " closed");
+        session.getBasicRemote().sendText("bye" + session.getId());
+    }
+
+    @OnError
+    public void onError(Session session, Throwable throwable) {
         try {
-            requesters.get(clientId).getBasicRemote().sendObject(message);
-        } catch (IOException | EncodeException e) {
+            if (session.isOpen()) {
+                session.close(
+                        new CloseReason(CloseReason.CloseCodes.UNEXPECTED_CONDITION, "Error occurred: " + throwable.getMessage())
+                );
+            }
+        } catch (IOException e) {
+            System.err.println("Failed to close session " + session.getId());
             e.printStackTrace();
         }
     }
 
-//    private static void sendData(VoiceStream stream, String clientId) throws IOException, EncodeException {
-//        try {
-//            requesters.get(clientId).getBasicRemote().
-//                    sendObject(message);
-//        } catch (IOException | EncodeException e) {
-//            e.printStackTrace();
-//        }
+//    private static void broadcast(Message message) throws IOException, EncodeException {
+//        sessions.forEach(session -> {
+//            synchronized (session) {
+//                try {
+//                    sesasion.getBasicRemote().sendObject(message);
+//                } catch (IOException | EncodeException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        });
 //    }
-
-    private static void broadcast(Message message) throws IOException, EncodeException {
-        sessions.forEach(session -> {
-            synchronized (session) {
-                try {
-                    session.getBasicRemote().sendObject(message);
-                } catch (IOException | EncodeException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-    }
 }
