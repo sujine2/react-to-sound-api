@@ -7,6 +7,7 @@ import org.apache.commons.math3.transform.FastFourierTransformer;
 import org.apache.commons.math3.transform.TransformType;
 import org.jitsi.webrtcvadwrapper.WebRTCVad;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -14,10 +15,11 @@ import java.util.Arrays;
 public class Voice {
     private final double[] stream;
     private final float sampleRate;
+    private double[][] frequenciesWithMagnitude;
     private double[] frequencies;
     private int mode = 3;
 
-    Voice(double[] rawStream, float sampleRate) {
+    public Voice(double[] rawStream, float sampleRate) {
         this.sampleRate = sampleRate;
         ArrayList<double[]> onlyVoice = new ArrayList<>();
 
@@ -35,20 +37,31 @@ public class Voice {
         this.stream = onlyVoice.stream().flatMapToDouble(Arrays::stream).toArray();
     }
 
-    double[] extractFrequency() {
+    public double[][]  extractFrequency() {
         FastFourierTransformer fft = new FastFourierTransformer(DftNormalization.STANDARD);
         Complex[] complexResult = fft.transform(this.stream, TransformType.FORWARD);
-        ArrayList<double[]> frequencyAndMagnitude = new ArrayList<>();
+        double[][] frequencyAndMagnitude = new double[complexResult.length][];
 
-        for (int i = 0; i < complexResult.length; i++) {
-            double magnitude = complexResult[i].abs();
+        for (int i = 0; i < complexResult.length / 2; i++) {  // Nyquist Frequency
+            double magnitude = complexResult[i].abs();        // amplitude
             double frequency = i * this.sampleRate / this.stream.length;
-            frequencyAndMagnitude.add(new double[]{magnitude, frequency});
+            frequencyAndMagnitude[i] = new double[]{magnitude, frequency};
         }
         Arrays.sort(frequencyAndMagnitude, (a, b) -> Double.compare(b[0], a[0]));
-        this.frequencies = frequencyAndMagnitude.stream().mapToDouble(x -> x[1]).toArray();
-        return this.frequencies;
+        this.frequenciesWithMagnitude = frequencyAndMagnitude;
+        this.frequencies = Arrays.stream(frequencyAndMagnitude).mapToDouble(row -> row[0]).toArray();
+        return this.frequenciesWithMagnitude;
     }
 
+    public static Color frequencyToColor(double frequency, double magnitude) {
+        double minFrequency = 20.0;    // minimum audio frequency
+        double maxFrequency = 20000.0; // maximum audio frequency
+        double maxMagnitude = 1.0;     // for use in brightness and saturation
 
+        double normalizedFrequency = (frequency - minFrequency) / (maxFrequency - minFrequency);
+        float saturation = (float)Math.min(1.0, magnitude / maxMagnitude);
+        float value = saturation; // 명도도 동일하게 설정
+
+        return Color.getHSBColor((float)normalizedFrequency, saturation, value);
+    }
 }
