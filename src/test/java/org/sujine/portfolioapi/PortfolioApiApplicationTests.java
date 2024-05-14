@@ -1,4 +1,4 @@
-package org.sujine.portfolio;
+package org.sujine.portfolioapi;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

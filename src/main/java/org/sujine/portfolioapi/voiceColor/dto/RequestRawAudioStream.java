@@ -6,8 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 @Getter
-@Setter
 @RequiredArgsConstructor
-public class RequestRawStream {
+public class RequestRawAudioStream {
     private byte[] stream;
 }
