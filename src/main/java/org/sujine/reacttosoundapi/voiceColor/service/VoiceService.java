@@ -1,42 +1,47 @@
 package org.sujine.reacttosoundapi.voiceColor.service;
 
+import org.jitsi.webrtcvadwrapper.WebRTCVad;
+import org.junit.runner.RunWith;
 import org.sujine.reacttosoundapi.voiceColor.domain.Voice;
-import org.sujine.reacttosoundapi.voiceColor.dto.RawAudioStream;
-import org.sujine.reacttosoundapi.voiceColor.dto.RequestRawAudioStream;
+import org.sujine.reacttosoundapi.voiceColor.dto.RequestAudioStreamData;
 import org.sujine.reacttosoundapi.voiceColor.dto.ResponseRGB;
-import org.sujine.reacttosoundapi.voiceColor.utils.AudioStreamParser;
+import org.sujine.reacttosoundapi.voiceColor.utils.AudioStreamFormatter;
 
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.UnsupportedAudioFileException;
 import java.awt.*;
-import java.io.IOException;
 
-public class VoceColorService {
-    public static ResponseRGB[] getMainVoiceColor(RequestRawAudioStream rawStream) {
-        try{
-            AudioFormat audioFormat = AudioStreamParser.extractAudioFormat(rawStream.getStream());
-            RawAudioStream rawAudioStream = new RawAudioStream(
-                    rawStream.getStream(),
-                    audioFormat.getSampleSizeInBits(),
-                    audioFormat.isBigEndian()
-            );
-            // convert byte type audio stream to double type
-            double[] stream = AudioStreamParser.convertStreamToDoubleArray(rawAudioStream);
+public class VoiceService {
+    public static ResponseRGB[] getMainVoiceColor(RequestAudioStreamData streamData) throws IllegalArgumentException {
+        // convert byte type audio stream to double type
+        double[] stream = AudioStreamFormatter.convertStreamToDoubleArray(
+                streamData.getRawStream(),
+                streamData.getSampleSize(),
+                streamData.isBigEndian()
+        );
 
-            Voice voice = new Voice(stream, audioFormat.getSampleRate());
-            double[][] frequenciesWithMagnitude = voice.extractFrequency();
+        Voice voice = new Voice(stream, streamData.getSampleRate());
+        double[][] frequenciesWithMagnitude = voice.extractFrequency();
 
-            ResponseRGB[] RGBColors = new ResponseRGB[5];
-            for(int i = 0; i < 5; i++){  // picks five frequency
-                Color colors = Voice.frequencyToColor(frequenciesWithMagnitude[i][1], frequenciesWithMagnitude[i][0]);
-                RGBColors[i] = new ResponseRGB(colors.getRed(), colors.getGreen(), colors.getBlue());
-            }
-            return RGBColors;
-        } catch (UnsupportedAudioFileException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+        ResponseRGB[] ResponseRGBs = new ResponseRGB[5];
+        for(int i = 0; i < 5; i++){  // picks five frequency
+            Color colors = Voice.frequencyToColor(frequenciesWithMagnitude[i][1], frequenciesWithMagnitude[i][0]);
+            ResponseRGBs[i] = new ResponseRGB(colors.getRed(), colors.getGreen(), colors.getBlue());
         }
-        return null;
+        return ResponseRGBs;
+    }
+
+    public static byte[] getVad(RequestAudioStreamData streamData) throws IllegalArgumentException {
+        // convert byte type audio stream to double type
+        double[] stream = AudioStreamFormatter.convertStreamToDoubleArray(
+                streamData.getRawStream(),
+                streamData.getSampleSize(),
+                streamData.isBigEndian()
+        );
+
+        Voice voice = new Voice(stream, streamData.getSampleRate());
+        return AudioStreamFormatter.convertDoubleToByteArray(
+                voice.getStream(),
+                streamData.getSampleSize(),
+                streamData.isBigEndian()
+        );
     }
 }
