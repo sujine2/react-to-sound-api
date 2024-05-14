@@ -1,4 +1,4 @@
-package org.sujine.reacttosoundapi.voiceColor.controller;
+package org.sujine.reacttosoundapi.voiceColor.controller.formatter;
 
 import jakarta.json.Json;
 import jakarta.json.JsonArrayBuilder;
