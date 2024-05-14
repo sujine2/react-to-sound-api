@@ -4,10 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class PortfolioApiApplication {
+public class ReactToSoundApiApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(PortfolioApiApplication.class, args);
+		SpringApplication.run(ReactToSoundApiApplication.class, args);
 	}
 
 }
