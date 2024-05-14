@@ -1,49 +1,74 @@
-package org.sujine.reacttosoundapi;
+package org.sujine.reacttosoundapi.service;
+
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.sujine.reacttosoundapi.TestHelper;
+import org.sujine.reacttosoundapi.voiceColor.dto.RequestAudioStreamData;
+import org.sujine.reacttosoundapi.voiceColor.service.VoiceService;
 
 import javax.sound.sampled.*;
-import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 
-public class CreateSampleData {
+import static org.junit.jupiter.api.Assertions.fail;
 
-    public static byte[] testCreateVoiceRawStream() throws LineUnavailableException, IOException {
-        AudioFormat format = new AudioFormat(
-                AudioFormat.Encoding.PCM_SIGNED, // encoding
-                44100.0f,                        // sample rate
-                16,                              // sample size
-                1,                               // channel: mono
-                4,                               // frame size
-                44100.0f,                        // frame rate
-                false                            // bigEndian
-        );
+public class VoiceServiceTests {
 
-        DataLine.Info info = new DataLine.Info(TargetDataLine.class, format);
-        if (!AudioSystem.isLineSupported(info)) {
-            System.err.println("Line not supported");
-            System.exit(0);
+    @DisplayName("16 bit audio stream")
+    @Test
+    public void getVad16SampleTest() throws IOException {
+        TestHelper helper = new TestHelper((float) 32000.0,16, false);
+        byte[] inputRawByte = null;
+        try {
+            inputRawByte = helper.createVoiceRawStream();
+            AudioInputStream inputStream = helper.createAudioInputStream(inputRawByte);
+            File file = new File("vad16TestInput.wav");
+            AudioSystem.write(inputStream, AudioFileFormat.Type.WAVE, file);
+
+            RequestAudioStreamData request = new RequestAudioStreamData(
+                    inputRawByte,
+                    inputStream.getFormat().getSampleRate(),
+                    inputStream.getFormat().getSampleSizeInBits(),
+                    1,
+                    false
+            );
+            byte[] vadByte = VoiceService.getVad(request);
+            AudioInputStream vadStream = helper.createAudioInputStream(vadByte);
+            file = new File("vad16TestResult.wav");
+            AudioSystem.write(vadStream, AudioFileFormat.Type.WAVE, file);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            fail("No exception should be thrown");
         }
-
-        TargetDataLine line = (TargetDataLine) AudioSystem.getLine(info);
-        line.open(format);
-        line.start();
-
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        int bufferLengthInFrames = line.getBufferSize() / 8;
-        int bufferLengthInBytes = bufferLengthInFrames * format.getFrameSize();
-
-        byte[] data = new byte[bufferLengthInBytes]; // 버퍼 크기
-        int numBytesRead;
-
-        long endTime = System.currentTimeMillis() + 10000; // 현재 시간에서 10초 후
-        while (System.currentTimeMillis() < endTime) {
-            if ((numBytesRead = line.read(data, 0, bufferLengthInBytes)) == -1) break;
-            out.write(data, 0, numBytesRead);
-        }
-
-        byte[] audioBytes = out.toByteArray();
-
-        line.stop();
-        line.close();
-        out.close();
     }
+
+    @DisplayName("24 bit audio stream")
+    @Test
+    public void getVad24SampleTest() throws IOException {
+        TestHelper helper = new TestHelper((float) 44100.0,24, false);
+        byte[] inputRawByte = null;
+        try {
+            inputRawByte = helper.createVoiceRawStream();
+            AudioInputStream inputStream = helper.createAudioInputStream(inputRawByte);
+            File file = new File("vad16TestInput.wav");
+            AudioSystem.write(inputStream, AudioFileFormat.Type.WAVE, file);
+
+            RequestAudioStreamData request = new RequestAudioStreamData(
+                    inputRawByte,
+                    inputStream.getFormat().getSampleRate(),
+                    inputStream.getFormat().getSampleSizeInBits(),
+                    1,
+                    false
+            );
+            byte[] vadByte = VoiceService.getVad(request);
+
+            inputStream = helper.createAudioInputStream(vadByte);
+            file = new File("vad24TestResult.wav");
+            AudioSystem.write(inputStream, AudioFileFormat.Type.WAVE, file);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            fail("No exception should be thrown");
+        }
+    }
+
 }
