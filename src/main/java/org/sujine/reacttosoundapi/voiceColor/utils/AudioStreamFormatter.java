@@ -1,45 +1,33 @@
 package org.sujine.reacttosoundapi.voiceColor.utils;
 
-import org.sujine.reacttosoundapi.voiceColor.dto.RawAudioStream;
-
 import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.UnsupportedAudioFileException;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-public class AudioStreamParser {
-    public static AudioFormat extractAudioFormat(byte[] rawStream) throws UnsupportedAudioFileException, IOException {
-        ByteArrayInputStream inputStream = new ByteArrayInputStream(rawStream);
-        AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(inputStream);
-        return audioInputStream.getFormat();
-    }
+public class AudioStreamFormatter {
+    public static double[] convertStreamToDoubleArray(byte[] rawStream, int sampleSize, boolean isBigEndian)
+            throws IllegalArgumentException{
+        double[] audioData = new double[rawStream.length / (sampleSize/8)];
+        ByteBuffer buffer = ByteBuffer.wrap(rawStream);
 
-    public static double[] convertStreamToDoubleArray(AudioFormat audioFormat) throws IllegalArgumentException{
-        double[] audioData = new double[rawStream.getRawStream().length / (rawStream.getBitSize()/8)];
-        ByteBuffer buffer = ByteBuffer.wrap(rawStream.getRawStream());
-
-        if (rawStream.getBitSize() == 16) {
-            buffer.order(rawStream.isBigEndian() ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN);
+        if (sampleSize == 16) {
+            buffer.order(isBigEndian ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN);
             return convert16BitToDouble(audioData, buffer);
-        } else if (rawStream.getBitSize() == 24)
-            return convert24BitToDouble(audioData, buffer, rawStream.isBigEndian());
-        else if (rawStream.getBitSize() == 32)
+        } else if (sampleSize == 24)
+            return convert24BitToDouble(audioData, buffer, isBigEndian);
+        else if (sampleSize == 32)
             return convert32BitToDouble(audioData, buffer);
         else throw new IllegalArgumentException("Number must be between 16 and 24");
     }
 
-    public static byte[] convertDoubleToByteArray(double[] stream, int bitSize, boolean isBigEndian) throws IllegalArgumentException {
-        int byteUnit = bitSize / 8;
+    public static byte[] convertDoubleToByteArray(double[] stream, int sampleSize, boolean isBigEndian) throws IllegalArgumentException {
+        int byteUnit = sampleSize / 8;
         byte[] byteArray = new byte[stream.length * byteUnit];
-        if (bitSize == 16)
+        if (sampleSize == 16)
             return convertDoubleTo16Bit(stream, byteArray, byteUnit, isBigEndian);
-        else if (bitSize == 24)
+        else if (sampleSize == 24)
             return convertDoubleTo24Bit(stream, byteArray, byteUnit, isBigEndian);
-        else if (bitSize == 32)
+        else if (sampleSize == 32)
             return convertDoubleTo32Bit(stream, byteArray, byteUnit, isBigEndian);
         else throw new IllegalArgumentException("Number must be between 16 and 24");
     }
