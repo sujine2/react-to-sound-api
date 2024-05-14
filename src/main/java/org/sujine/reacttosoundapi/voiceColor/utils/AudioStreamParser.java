@@ -1,6 +1,6 @@
-package org.sujine.portfolioapi.voiceColor.utils;
+package org.sujine.reacttosoundapi.voiceColor.utils;
 
-import org.sujine.portfolioapi.voiceColor.dto.RawAudioStream;
+import org.sujine.reacttosoundapi.voiceColor.dto.RawAudioStream;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;

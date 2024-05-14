@@ -1,9 +1,8 @@
-package org.sujine.portfolioapi.voiceColor.dto;
+package org.sujine.reacttosoundapi.voiceColor.dto;
 
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
 @Getter
 @RequiredArgsConstructor

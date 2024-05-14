@@ -1,4 +1,4 @@
-package org.sujine.portfolioapi.voiceColor.dto;
+package org.sujine.reacttosoundapi.voiceColor.dto;
 
 public class ResponseRGB {
     private int red;

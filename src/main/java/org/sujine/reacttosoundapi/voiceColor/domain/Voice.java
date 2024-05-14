@@ -1,4 +1,4 @@
-package org.sujine.portfolioapi.voiceColor.domain;
+package org.sujine.reacttosoundapi.voiceColor.domain;
 
 import lombok.Getter;
 import org.apache.commons.math3.complex.Complex;

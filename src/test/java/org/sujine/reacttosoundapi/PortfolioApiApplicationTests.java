@@ -1,4 +1,4 @@
-package org.sujine.portfolioapi;
+package org.sujine.reacttosoundapi;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

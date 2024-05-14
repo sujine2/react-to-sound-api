@@ -9,10 +9,10 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>org.sujine</groupId>
-	<artifactId>portfolio-api</artifactId>
+	<artifactId>react-to-sound-api</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>portfolio-api</name>
-	<description>portfolio-api</description>
+	<name>react-to-sound-api</name>
+	<description>react-to-sound-api</description>
 	<properties>
 		<java.version>21</java.version>
 	</properties>

@@ -1,4 +1,4 @@
-package org.sujine.portfolioapi;
+package org.sujine.reacttosoundapi;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

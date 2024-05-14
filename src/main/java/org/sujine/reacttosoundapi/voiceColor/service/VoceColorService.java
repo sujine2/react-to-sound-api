@@ -1,7 +1,7 @@
-package org.sujine.portfolioapi.voiceColor.service;
+package org.sujine.reacttosoundapi.voiceColor.service;
 
-import org.sujine.portfolioapi.voiceColor.dto.RawAudioStream;
-import org.sujine.portfolioapi.voiceColor.utils.AudioStreamParser;
+import org.sujine.reacttosoundapi.voiceColor.dto.RawAudioStream;
+import org.sujine.reacttosoundapi.voiceColor.utils.AudioStreamParser;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.UnsupportedAudioFileException;

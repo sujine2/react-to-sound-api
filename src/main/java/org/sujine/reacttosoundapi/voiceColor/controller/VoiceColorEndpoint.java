@@ -1,4 +1,4 @@
-package org.sujine.portfolioapi.voiceColor.controller;
+package org.sujine.reacttosoundapi.voiceColor.controller;
 
 import jakarta.websocket.EncodeException;
 import jakarta.websocket.OnMessage;
@@ -7,7 +7,7 @@ import jakarta.websocket.Session;
 import jakarta.websocket.server.ServerEndpoint;
 import jakarta.ws.rs.PathParam;
 import org.apache.logging.log4j.message.Message;
-import org.sujine.portfolioapi.voiceColor.dto.RequestRawAudioStream;
+import org.sujine.reacttosoundapi.voiceColor.dto.RequestRawAudioStream;
 
 import java.io.IOException;
 import java.util.Map;
