@@ -52,7 +52,8 @@ public class TestHelper {
         buildByteOutputStream(out, line, bufferLengthInFrames * this.audioFormat.getFrameSize());
 
 
-        line.stop(); line.close();
+        line.stop();
+        line.close();
         out.close();
         return out.toByteArray();
     }
@@ -71,7 +72,7 @@ public class TestHelper {
         byte[] data = new byte[bufferLengthInBytes];
         int numBytesRead;
 
-        long endTime = System.currentTimeMillis() + 10000; // 10s
+        long endTime = System.currentTimeMillis() + 5000; // 5s
         while (System.currentTimeMillis() < endTime) {
             if ((numBytesRead = line.read(data, 0, bufferLengthInBytes)) == -1) break;
             out.write(data, 0, numBytesRead);
