@@ -1,6 +1,5 @@
 package org.sujine.reacttosoundapi.voiceColor.utils;
 
-import javax.sound.sampled.AudioFormat;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
@@ -13,11 +12,10 @@ public class AudioStreamFormatter {
         if (sampleSize == 16) {
             buffer.order(isBigEndian ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN);
             return convert16BitToDouble(audioData, buffer);
-        } else if (sampleSize == 24)
-            return convert24BitToDouble(audioData, buffer, isBigEndian);
-        else if (sampleSize == 32)
+        } else if (sampleSize == 32) {
+            buffer.order(isBigEndian ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN);
             return convert32BitToDouble(audioData, buffer);
-        else throw new IllegalArgumentException("Number must be between 16 and 24");
+        } else throw new IllegalArgumentException("Number must be between 16 and 24");
     }
 
     public static byte[] convertDoubleToByteArray(double[] stream, int sampleSize, boolean isBigEndian) throws IllegalArgumentException {
@@ -25,8 +23,6 @@ public class AudioStreamFormatter {
         byte[] byteArray = new byte[stream.length * byteUnit];
         if (sampleSize == 16)
             return convertDoubleTo16Bit(stream, byteArray, byteUnit, isBigEndian);
-        else if (sampleSize == 24)
-            return convertDoubleTo24Bit(stream, byteArray, byteUnit, isBigEndian);
         else if (sampleSize == 32)
             return convertDoubleTo32Bit(stream, byteArray, byteUnit, isBigEndian);
         else throw new IllegalArgumentException("Number must be between 16 and 24");
@@ -36,21 +32,6 @@ public class AudioStreamFormatter {
         for (int i = 0; i < audioData.length; i++) {
             short sample = buffer.getShort();
             audioData[i] = sample / 32768.0; // -32768 to 32767 to -1.0 to 1.0
-        }
-        return audioData;
-    }
-
-    private static double[] convert24BitToDouble(double[] audioData, ByteBuffer buffer, boolean isBigEndian) {
-        for (int i = 0; i < audioData.length; i++) {
-            int sample = 0;
-            if (isBigEndian)
-                sample = ((buffer.get() & 0xFF) << 16 | (buffer.get() & 0xFF) << 8 | (buffer.get() & 0xFF));
-            else
-                sample = ((buffer.get() & 0xFF) | (buffer.get() & 0xFF) << 8 | (buffer.get() & 0xFF) << 16);
-
-            // Convert unsigned to signed
-            if (sample >= 0x800000) sample -= 0x1000000;
-            audioData[i] = sample / 8388608.0; // -8388608 to 8388607 to -1.0 to 1.0
         }
         return audioData;
     }
@@ -78,23 +59,6 @@ public class AudioStreamFormatter {
         return byteArray;
     }
 
-    private static byte[] convertDoubleTo24Bit(double[] audioData, byte[] byteArray, int byteUnit, boolean isBigEndian) {
-        for (int i = 0; i < audioData.length; i++) {
-            int sample = (int) (audioData[i] * 8388607); // -1.0 ~ 1.0 to -8388608 ~ 8388607
-
-            if (isBigEndian) {
-                byteArray[byteUnit * i + 2] = (byte) (sample & 0xFF);
-                byteArray[byteUnit * i + 1] = (byte) ((sample >> 8) & 0xFF);
-                byteArray[byteUnit * i] = (byte) ((sample >> 16) & 0xFF);
-            } else {
-                byteArray[byteUnit * i] = (byte) (sample & 0xFF);
-                byteArray[byteUnit * i + 1] = (byte) ((sample >> 8) & 0xFF);
-                byteArray[byteUnit * i + 2] = (byte) ((sample >> 16) & 0xFF);
-            }
-        }
-        return byteArray;
-    }
-
     public static byte[] convertDoubleTo32Bit(double[] audioData, byte[] byteArray, int byteUnit, boolean isBigEndian) {
         for (int i = 0; i < audioData.length; i++) {
             int sample = (int) (audioData[i] * 2147483647); // -1.0 ~ 1.0 to -2147483648 ~ 2147483647
@@ -112,6 +76,22 @@ public class AudioStreamFormatter {
             }
         }
         return byteArray;
+    }
+
+    public static double[] padArrayToNextPowerOfTwo(double[] inputStream) {
+        int originalLength = inputStream.length;
+        int newLength = findNextPowerOfTwo(originalLength);
+        double[] paddedArray = new double[newLength];
+        System.arraycopy(inputStream, 0, paddedArray, 0, originalLength);
+        return paddedArray;
+    }
+
+    public static int findNextPowerOfTwo(int input) {
+        int result = 1;
+        while (result < input) {
+            result <<= 1;
+        }
+        return result;
     }
 }
 
