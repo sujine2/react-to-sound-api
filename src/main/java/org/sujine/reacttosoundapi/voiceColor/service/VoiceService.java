@@ -1,7 +1,5 @@
 package org.sujine.reacttosoundapi.voiceColor.service;
 
-import org.jitsi.webrtcvadwrapper.WebRTCVad;
-import org.junit.runner.RunWith;
 import org.sujine.reacttosoundapi.voiceColor.domain.Voice;
 import org.sujine.reacttosoundapi.voiceColor.dto.RequestAudioStreamData;
 import org.sujine.reacttosoundapi.voiceColor.dto.ResponseRGB;
