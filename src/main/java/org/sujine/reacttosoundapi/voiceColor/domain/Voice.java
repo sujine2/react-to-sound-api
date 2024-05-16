@@ -77,8 +77,8 @@ public class Voice {
         double minFrequency = 20.0;    // minimum audio frequency
         double maxFrequency = 20000.0; // maximum audio frequency
         double maxMagnitude = 100;     // for use in brightness and saturation
-        System.out.println(magnitude);
-        System.out.println(frequency);
+//        System.out.println(magnitude);
+//        System.out.println(frequency);
         double normalizedFrequency = (frequency - minFrequency) / (maxFrequency - minFrequency);
         float saturation = (float)Math.min(1.0, magnitude / maxMagnitude);
         float brightness = (float) 1.0 - saturation;
