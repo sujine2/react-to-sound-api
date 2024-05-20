@@ -8,7 +8,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 @AllArgsConstructor
-public class TestHelper {
+public class TestStreamData {
     AudioFormat audioFormat;
 
     public float sampleRate;
@@ -19,7 +19,7 @@ public class TestHelper {
     public boolean bigEndian;
 
 
-    public TestHelper(float sampleRate, int sampleSize, boolean bigEndian) {
+    public TestStreamData(float sampleRate, int sampleSize, boolean bigEndian) {
         this.sampleSize = sampleSize;
         this.sampleRate = sampleRate;
         this.frameSize = (sampleSize / 8) * this.channel;
