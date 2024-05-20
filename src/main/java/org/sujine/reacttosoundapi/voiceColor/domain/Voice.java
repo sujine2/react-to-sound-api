@@ -48,6 +48,7 @@ public class Voice {
             int end = (int)Math.min(start + this.fftSize, streamLength);
             int size = (end != streamLength)? this.fftSize: this.fftSize + streamLength - (start + this.fftSize);
             double[] segment = new double[size];
+//            System.out.println(size);
             System.arraycopy(this.stream, start, segment, 0, size);
 
             if (end == streamLength) segment = AudioStreamFormatter.padArrayToNextPowerOfTwo(segment);
@@ -75,7 +76,7 @@ public class Voice {
 
     public static Color frequencyToColor(double frequency, double magnitude) {
         double minFrequency = 20.0;    // minimum audio frequency
-        double maxFrequency = 20000.0; // maximum audio frequency
+        double maxFrequency = 1000.0; // maximum audio frequency
         double maxMagnitude = 100;     // for use in brightness and saturation
 //        System.out.println(magnitude);
 //        System.out.println(frequency);
