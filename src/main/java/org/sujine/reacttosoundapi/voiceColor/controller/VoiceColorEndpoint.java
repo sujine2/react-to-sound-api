@@ -11,6 +11,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.ExecutionException;
 
 @ServerEndpoint(value = "/voiceColor",
                 encoders = {ResponseRGBJSONEncoder.class},
@@ -28,8 +29,8 @@ public class VoiceColorEndpoint {
 
     @OnMessage
     public void onMessage(Session session, RequestAudioStreamData message)
-            throws IOException, IllegalArgumentException, EncodeException {
-        session.getBasicRemote().sendObject(VoiceService.getMainVoiceColor(message));
+            throws IOException, IllegalArgumentException, ExecutionException, InterruptedException, EncodeException {
+        session.getBasicRemote().sendObject(new VoiceService().getMainVoiceColor(message));
     }
 
     @OnClose

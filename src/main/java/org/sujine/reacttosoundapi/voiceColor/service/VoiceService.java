@@ -1,30 +1,33 @@
 package org.sujine.reacttosoundapi.voiceColor.service;
 
+import lombok.Getter;
 import org.sujine.reacttosoundapi.voiceColor.domain.Voice;
 import org.sujine.reacttosoundapi.voiceColor.dto.RequestAudioStreamData;
 import org.sujine.reacttosoundapi.voiceColor.dto.ResponseRGB;
 import org.sujine.reacttosoundapi.voiceColor.utils.AudioStreamFormatter;
 
-import java.awt.*;
+import java.util.ArrayList;
+import java.util.concurrent.*;
 
+@Getter
 public class VoiceService {
-    public static ResponseRGB[] getMainVoiceColor(RequestAudioStreamData streamData) throws IllegalArgumentException {
-        // convert byte type audio stream to double type
-        double[] stream = AudioStreamFormatter.convertStreamToDoubleArray(
-                streamData.getRawStream(),
-                streamData.getSampleSize(),
-                streamData.isBigEndian()
-        );
+    public ArrayList<ExecutorService> executors = new ArrayList<>();
 
-        Voice voice = new Voice(stream, streamData.getSampleRate());
-        double[][] frequenciesWithMagnitude = voice.extractFrequency();
+    public ResponseRGB[] getMainVoiceColor(RequestAudioStreamData streamData) throws IllegalArgumentException, ExecutionException, InterruptedException {
+        VoiceColorTask voiceColorTask = new VoiceColorTask(streamData);
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        this.executors.add(executorService);
+        Future<ResponseRGB[]> responseRGBs = executorService.submit(voiceColorTask);
+        executorService.shutdown();
 
-        ResponseRGB[] ResponseRGBs = new ResponseRGB[5];
-        for(int i = 0; i < 5; i++){  // picks five frequency
-            Color colors = Voice.frequencyToColor(frequenciesWithMagnitude[i][1], frequenciesWithMagnitude[i][0]);
-            ResponseRGBs[i] = new ResponseRGB(colors.getRed(), colors.getGreen(), colors.getBlue());
+        try {
+            if (!executorService.awaitTermination(800, TimeUnit.MILLISECONDS)) {
+                executorService.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            executorService.shutdownNow();
         }
-        return ResponseRGBs;
+        return responseRGBs.get();
     }
 
     public static byte[] getVad(RequestAudioStreamData streamData) throws IllegalArgumentException {
