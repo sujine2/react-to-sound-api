@@ -78,6 +78,16 @@ public class AudioStreamFormatter {
         return byteArray;
     }
 
+    public static double[] padArray(double[] array, int length) {
+        if (array.length == length) {
+            return array;
+        }
+        double[] paddedArray = new double[length];
+        System.arraycopy(array, 0, paddedArray, 0, array.length);
+
+        return paddedArray;
+    }
+
     public static double[] padArrayToNextPowerOfTwo(double[] inputStream) {
         int originalLength = inputStream.length;
         int newLength = findNextPowerOfTwo(originalLength);

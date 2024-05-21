@@ -31,7 +31,7 @@ public class Voice {
 
         for (int start = 0; start < rawStream.length; start += frameSize) {
             int stop = (int)Math.min(start + frameSize, rawStream.length);
-            double[] frame = Arrays.copyOfRange(rawStream, start, stop);
+            double[] frame = AudioStreamFormatter.padArray(Arrays.copyOfRange(rawStream, start, stop), frameSize);
             if(vad.isSpeech(frame)) onlyVoice.add(frame);
 
         }
