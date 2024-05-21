@@ -6,7 +6,6 @@ import org.sujine.reacttosoundapi.voiceColor.controller.formatter.RequestAudioSt
 import org.sujine.reacttosoundapi.voiceColor.dto.RequestAudioStreamData;
 import org.sujine.reacttosoundapi.voiceColor.service.VoiceService;
 
-import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Set;
@@ -17,7 +16,7 @@ public class VadEndpoint {
     private static Set<Session> sessions = new CopyOnWriteArraySet<>();
 
     @OnOpen
-    void onOpen(Session session) throws IOException {
+    public void onOpen(Session session) throws IOException {
         sessions.add(session);
         System.out.println("Client " + session.getId() + " opened");
         session.getBasicRemote().sendText("welcome" + session.getId());
@@ -39,6 +38,7 @@ public class VadEndpoint {
     @OnError
     public void onError(Session session, Throwable throwable) {
         try {
+            System.out.println(throwable.getMessage());
             if (session.isOpen()) {
                 session.close(
                         new CloseReason(CloseReason.CloseCodes.UNEXPECTED_CONDITION, "Error occurred: " + throwable.getMessage())
