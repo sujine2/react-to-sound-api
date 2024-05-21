@@ -6,13 +6,14 @@ import jakarta.websocket.Decoder;
 import org.sujine.reacttosoundapi.voiceColor.dto.RequestAudioStreamData;
 
 import java.io.StringReader;
+import java.util.Base64;
 
 public class RequestAudioStreamJSONDecoder implements Decoder.Text<RequestAudioStreamData> {
     @Override
     public RequestAudioStreamData decode(String jsonObjectMsg) {
         JsonObject jsonObject = Json.createReader(new StringReader(jsonObjectMsg)).readObject();
         return new RequestAudioStreamData(
-                jsonObject.getString("rawStream").getBytes(),
+                Base64.getDecoder().decode(jsonObject.getString("rawStream")),
                 (float) jsonObject.getJsonNumber("sampleRate").doubleValue(),
                 jsonObject.getInt("sampleSize"),
                 jsonObject.getInt("channel"),

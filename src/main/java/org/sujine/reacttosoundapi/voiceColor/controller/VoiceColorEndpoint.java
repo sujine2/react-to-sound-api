@@ -7,7 +7,6 @@ import org.sujine.reacttosoundapi.voiceColor.controller.formatter.ResponseRGBJSO
 import org.sujine.reacttosoundapi.voiceColor.dto.RequestAudioStreamData;
 import org.sujine.reacttosoundapi.voiceColor.service.VoiceService;
 
-import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -24,7 +23,7 @@ public class VoiceColorEndpoint {
     public void onOpen(Session session) throws IOException {
         sessions.add(session);
         System.out.println("Client " + session.getId() + " opened");
-        session.getBasicRemote().sendText("welcome" + session.getId());
+        session.getBasicRemote().sendText("welcome ");
     }
 
     @OnMessage
