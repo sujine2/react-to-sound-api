@@ -75,9 +75,9 @@ public class Voice {
     }
 
     public static Color frequencyToColor(double frequency, double magnitude) {
-        double minFrequency = 20.0;    // minimum audio frequency
+        double minFrequency = 100.0;    // minimum audio frequency
         double maxFrequency = 1000.0; // maximum audio frequency
-        double maxMagnitude = 100;     // for use in brightness and saturation
+        double maxMagnitude = 50;     // for use in brightness and saturation
 //        System.out.println(magnitude);
 //        System.out.println(frequency);
         double normalizedFrequency = (frequency - minFrequency) / (maxFrequency - minFrequency);
