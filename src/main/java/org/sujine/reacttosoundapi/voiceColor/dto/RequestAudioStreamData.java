@@ -6,7 +6,7 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public class RequestAudioStreamData {
-    byte[] rawStream;
+    double[] rawStream;
     float sampleRate;
     int sampleSize;
     int channel;
