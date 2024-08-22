@@ -18,6 +18,7 @@ public class  ResponseRGBJSONEncoder implements Encoder.Text<ResponseRGB[]> {
                     .add("red", responseRGB.getRed())
                     .add("green", responseRGB.getGreen())
                     .add("blue", responseRGB.getBlue())
+                    .add("magnitude", responseRGB.getMagnitude())
             );
         }
         return arrayBuilder.build().toString();

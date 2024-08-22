@@ -20,7 +20,8 @@ public class ResponseRGBJOSNDecoder implements Decoder.Text<List<ResponseRGB>> {
             RGBList.add(new ResponseRGB(
                     jsonObject.getInt("red"),
                     jsonObject.getInt("green"),
-                    jsonObject.getInt("blue")
+                    jsonObject.getInt("blue"),
+                    jsonObject.getInt("magnitude")
             ));
         }
         return RGBList;
