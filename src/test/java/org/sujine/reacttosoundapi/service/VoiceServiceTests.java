@@ -6,6 +6,7 @@ import org.sujine.reacttosoundapi.TestStreamData;
 import org.sujine.reacttosoundapi.voiceColor.dto.RequestAudioStreamData;
 import org.sujine.reacttosoundapi.voiceColor.dto.ResponseRGB;
 import org.sujine.reacttosoundapi.voiceColor.service.VoiceService;
+import org.sujine.reacttosoundapi.voiceColor.utils.AudioStreamFormatter;
 
 import javax.sound.sampled.*;
 import java.io.File;
@@ -111,8 +112,14 @@ public class VoiceServiceTests {
             AudioInputStream inputStream = generator.createAudioInputStream(inputRawByte);
             File file = new File("vad"+sampleRate+"TestInput.wav");
             AudioSystem.write(inputStream, AudioFileFormat.Type.WAVE, file);
-            request = new RequestAudioStreamData(
+
+            double[] stream = AudioStreamFormatter.convertStreamToDoubleArray(
                     inputRawByte,
+                    16,
+                    false
+            );
+            request = new RequestAudioStreamData(
+                    stream,
                     inputStream.getFormat().getSampleRate(),
                     inputStream.getFormat().getSampleSizeInBits(),
                     1,
