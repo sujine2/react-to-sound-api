@@ -42,6 +42,7 @@ public class VoiceColorEndpoint {
     @OnError
     public void onError(Session session, Throwable throwable) {
         try {
+//            System.out.println(throwable.getMessage());
             if (session.isOpen()) {
                 session.close(
                         new CloseReason(CloseReason.CloseCodes.UNEXPECTED_CONDITION, "Error occurred: " + throwable.getMessage())
