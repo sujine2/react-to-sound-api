@@ -14,14 +14,7 @@ public class VoiceColorTask implements Callable<ResponseRGB[]> {
     private RequestAudioStreamData streamData;
 
     public ResponseRGB[] call() throws IllegalArgumentException {
-        // convert byte type audio stream to double type
 //        System.out.println("thread id #" + Thread.currentThread().threadId());
-//        double[] stream = AudioStreamFormatter.convertStreamToDoubleArray(
-//                this.streamData.getRawStream(),
-//                this.streamData.getSampleSize(),
-//                this.streamData.isBigEndian()
-//        );
-
         Voice voice = new Voice(this.streamData.getRawStream(), this.streamData.getSampleRate());
         double[][] frequenciesWithMagnitude = voice.extractFrequency();
 

@@ -31,13 +31,6 @@ public class VoiceService {
     }
 
     public static byte[] getVad(RequestAudioStreamData streamData) throws IllegalArgumentException {
-        // convert byte type audio stream to double type
-//        double[] stream = AudioStreamFormatter.convertStreamToDoubleArray(
-//                streamData.getRawStream(),
-//                streamData.getSampleSize(),
-//                streamData.isBigEndian()
-//        );
-
         Voice voice = new Voice(streamData.getRawStream(), streamData.getSampleRate());
         return AudioStreamFormatter.convertDoubleToByteArray(
                 voice.getStream(),
