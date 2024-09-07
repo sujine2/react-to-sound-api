@@ -35,8 +35,6 @@ SpeechToServiceTests {
             speechToTextService.sendAudioData(request.getRawStream(), request.isFinal());
             Thread.sleep(1000);
         } catch (Exception e) {
-        } catch (Exception e) {
-        } catch (Exception e) {
             System.out.println(e.getMessage());
             fail("SpeechToTextService() failed");
         }
