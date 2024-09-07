@@ -30,13 +30,12 @@ SpeechToServiceTests {
         try {
             SpeechToTextService speechToTextService = new SpeechToTextService();
             SpeechToTextService.ResponseObserverNotSend responseObserver = new SpeechToTextService.ResponseObserverNotSend();
-//            ClientStream<StreamingRecognizeRequest> clientStream = speechToTextService.initialize((int)request.getSampleRate(), responseObserver);
 
             speechToTextService.initialize((int)request.getSampleRate(), responseObserver);
-//            responseObserver.setClientStream(clientStream);
-//            byte[] byteStream = AudioStreamFormatter.convertDoubleToByteArray(request.getRawStream(), request.getSampleSize(), request.isBigEndian());
             speechToTextService.sendAudioData(request.getRawStream(), request.isFinal());
             Thread.sleep(1000);
+        } catch (Exception e) {
+        } catch (Exception e) {
         } catch (Exception e) {
             System.out.println(e.getMessage());
             fail("SpeechToTextService() failed");
