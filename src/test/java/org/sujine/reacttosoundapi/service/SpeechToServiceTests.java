@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.sujine.reacttosoundapi.TestStreamData;
 import org.sujine.reacttosoundapi.speechToText.dto.RequestAudioStreamData;
 import org.sujine.reacttosoundapi.speechToText.service.SpeechToTextService;
+import org.sujine.reacttosoundapi.voiceColor.utils.AudioStreamFormatter;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -26,12 +27,16 @@ SpeechToServiceTests {
         TestStreamData generator = new TestStreamData((float) 16000,16, false);
         RequestAudioStreamData request = this.createRequest(generator, "16");
 
-        SpeechToTextService speechToTextService = new SpeechToTextService();
         try {
+            SpeechToTextService speechToTextService = new SpeechToTextService();
             SpeechToTextService.ResponseObserverNotSend responseObserver = new SpeechToTextService.ResponseObserverNotSend();
-            ClientStream<StreamingRecognizeRequest> clientStream = speechToTextService.streamRecognize(request, responseObserver);
-            speechToTextService.startSilenceTimer(clientStream);
-            Thread.sleep(10000);
+//            ClientStream<StreamingRecognizeRequest> clientStream = speechToTextService.initialize((int)request.getSampleRate(), responseObserver);
+
+            speechToTextService.initialize((int)request.getSampleRate(), responseObserver);
+//            responseObserver.setClientStream(clientStream);
+//            byte[] byteStream = AudioStreamFormatter.convertDoubleToByteArray(request.getRawStream(), request.getSampleSize(), request.isBigEndian());
+            speechToTextService.sendAudioData(request.getRawStream(), request.isFinal());
+            Thread.sleep(1000);
         } catch (Exception e) {
             System.out.println(e.getMessage());
             fail("SpeechToTextService() failed");
@@ -46,12 +51,18 @@ SpeechToServiceTests {
             File file = new File("vad"+sampleRate+"TestInput.wav");
             AudioSystem.write(inputStream, AudioFileFormat.Type.WAVE, file);
 
+//            double[] stream = AudioStreamFormatter.convertStreamToDoubleArray(
+//                    inputRawByte,
+//                    16,
+//                    false
+//            );
             request = new RequestAudioStreamData(
                     inputRawByte,
                     inputStream.getFormat().getSampleRate(),
                     inputStream.getFormat().getSampleSizeInBits(),
                     1,
-                    false
+                    false,
+                    true
             );
         } catch (Exception e) {
             System.out.println(e.getMessage());
