@@ -11,6 +11,7 @@ public class ResponseAudioTextEncoder implements Encoder.Text<ResponseAudioText>
         return Json.createObjectBuilder()
                 .add("result", responseAudioText.getResult())
                 .add("bigEndian", responseAudioText.isFinal())
+                .build()
                 .toString();
     }
 }

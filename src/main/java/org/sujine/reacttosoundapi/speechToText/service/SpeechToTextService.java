@@ -12,55 +12,63 @@ import com.google.cloud.speech.v1.StreamingRecognitionResult;
 import com.google.protobuf.ByteString;
 
 import jakarta.websocket.Session;
-import org.sujine.reacttosoundapi.speechToText.dto.RequestAudioStreamData;
 import org.sujine.reacttosoundapi.speechToText.dto.ResponseAudioText;
 
-import java.util.Timer;
-import java.util.TimerTask;
-
 public class SpeechToTextService {
-    private Timer silenceTimer;
-    private final int SILENCE_THRESHOLD = 5000;  // 5초 동안 음성이 없으면 변환 중단
+    private SpeechClient speechClient;
+    private ClientStream<StreamingRecognizeRequest> requestObserver;
 
-    public ClientStream<StreamingRecognizeRequest> streamRecognize(RequestAudioStreamData streamData, ResponseObserver<StreamingRecognizeResponse> responseObserver) throws Exception {
-        try (SpeechClient speechClient = SpeechClient.create()) {
+    public void initialize(int sampleRate, ResponseObserver<StreamingRecognizeResponse> responseObserver) throws Exception {
+        speechClient = SpeechClient.create();  // SpeechClient를 생성
+        // 음성 인식 요청 설정
+        RecognitionConfig recognitionConfig = RecognitionConfig.newBuilder()
+                .setEncoding(RecognitionConfig.AudioEncoding.LINEAR16)
+                .setSampleRateHertz(sampleRate)
+                .setLanguageCode("ko-KR")
+                .build();
 
-            // 음성 인식 요청 설정
-            RecognitionConfig recognitionConfig = RecognitionConfig.newBuilder()
-                    .setEncoding(RecognitionConfig.AudioEncoding.LINEAR16)
-                    .setSampleRateHertz((int)streamData.getSampleRate())
-                    .setLanguageCode("ko-KR")
-                    .build();
-            // 실시간 음성 인식 설정 (중간 결과 포함)
-            StreamingRecognitionConfig streamingConfig = StreamingRecognitionConfig.newBuilder()
-                    .setConfig(recognitionConfig)
-                    .setInterimResults(true)
-                    .build();
+        // 실시간 음성 인식 설정 (중간 결과 포함)
+        StreamingRecognitionConfig streamingConfig = StreamingRecognitionConfig.newBuilder()
+                .setConfig(recognitionConfig)
+                .setInterimResults(true)
+                .build();
 
-            // 음성 인식 스트리밍 요청 초기화
-            ClientStream<StreamingRecognizeRequest> clientStream = speechClient.streamingRecognizeCallable().splitCall(responseObserver);
+        requestObserver = speechClient.streamingRecognizeCallable().splitCall(responseObserver);  // StreamObserver 통한 양방향 처리
 
-            StreamingRecognizeRequest initialRequest = StreamingRecognizeRequest.newBuilder()
-                    .setStreamingConfig(streamingConfig)
-                    .build();
-            clientStream.send(initialRequest);  // 초기 설정 요청 전송
+        // 첫 요청에 StreamingConfig를 보내야 함
+        StreamingRecognizeRequest initialRequest = StreamingRecognizeRequest.newBuilder()
+                .setStreamingConfig(streamingConfig)
+                .build();
+        requestObserver.send(initialRequest);  // 초기 설정 요청 전송
+    }
 
+    // 음성 데이터를 전송하는 메서드
+    public void sendAudioData(byte[] audioData, boolean isFinal) {
+        if (requestObserver != null) {
             // 음성 데이터를 Google Cloud로 전송
-            ByteString audioBytes = ByteString.copyFrom(streamData.getRawStream());
-            if (audioBytes.isEmpty()) {
-                System.err.println("Audio stream data is empty.");
-            } else {
-                StreamingRecognizeRequest request = StreamingRecognizeRequest.newBuilder()
-                        .setAudioContent(audioBytes)
-                        .build();
-                clientStream.send(request);  // 음성 데이터 요청 전송
+            StreamingRecognizeRequest request = StreamingRecognizeRequest.newBuilder()
+                    .setAudioContent(ByteString.copyFrom(audioData))
+                    .build();
+            requestObserver.send(request);
+//            System.out.println("Audio data sent.");
+        } else {
+            System.err.println("Audio stream is not initialized.");
+        }
+
+        if (isFinal) {
+            try {
+                Thread.sleep(300);
+                System.out.println("Closing stream.");
+                requestObserver.closeSend();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-            return clientStream;
         }
     }
 
-    public static class ResponseObserverSend implements ResponseObserver<StreamingRecognizeResponse>  {
-        private final Session session;
+    // 응답 처리 및 서버로부터의 응답을 받는 ResponseObserver
+    public static class ResponseObserverSend implements ResponseObserver<StreamingRecognizeResponse> {
+        private Session session;
         private StringBuilder finalTranscript = new StringBuilder();  // 최종 텍스트를 저장할 버퍼
 
         public ResponseObserverSend(Session session) {
@@ -69,39 +77,41 @@ public class SpeechToTextService {
 
         @Override
         public void onStart(StreamController controller) {
-            // 스트림이 시작될 때 호출됩니다. 초기화 작업을 이곳에 작성할 수 있습니다.
+            // 스트림이 시작될 때 호출
             System.out.println("Streaming started.");
         }
 
         @Override
         public void onResponse(StreamingRecognizeResponse response) {
             try {
+//                System.out.println("Streaming response received.");
                 if (!response.getResultsList().isEmpty()) {
                     StreamingRecognitionResult result = response.getResultsList().get(0);
                     String transcript = result.getAlternativesList().get(0).getTranscript();
 
                     if (result.getIsFinal()) {
-                        // 최종 텍스트일 경우, 버퍼에 저장
                         finalTranscript.append(transcript);
-
-                        session.getBasicRemote().sendObject(new ResponseAudioText(transcript, true));
+//                        System.out.println(new ResponseAudioText(transcript, true).toString());
+                        this.session.getBasicRemote().sendObject(new ResponseAudioText(transcript, true));
                     } else {
                         // 중간 결과일 경우
-                        session.getBasicRemote().sendObject(new ResponseAudioText(transcript, false));
+//                        System.out.println(new ResponseAudioText(transcript, false).toString());
+                        this.session.getBasicRemote().sendObject(new ResponseAudioText(transcript, false));
                     }
                 }
             } catch (Exception e) {
+                System.err.println("Error during speech response: " + e.getMessage());
                 e.printStackTrace();
             }
         }
 
         @Override
         public void onError(Throwable t) {
-            // 에러 발생 시 호출됩니다.
-            System.err.println("Error during speech recognition: " + t.getMessage());
+            String errorMessage = t.getMessage();
+            System.err.println("Error during speech recognition: " + errorMessage);
+
             t.printStackTrace();
         }
-
 
         @Override
         public void onComplete() {
@@ -146,7 +156,14 @@ public class SpeechToTextService {
         @Override
         public void onError(Throwable t) {
             // 에러 발생 시 호출됩니다.
-            System.err.println("Error during speech recognition: " + t.getMessage());
+            String errorMessage = t.getMessage();
+            System.err.println("Error during speech recognition: " + errorMessage);
+
+            // 타임아웃 오류인지 확인
+            if (errorMessage != null && errorMessage.contains("OUT_OF_RANGE: Audio Timeout Error")) {
+                // 타임아웃 오류가 발생하면 startSilenceTimer를 호출
+//                startSilenceTimer(this.clientStream);
+            }
             t.printStackTrace();
         }
 
@@ -156,38 +173,4 @@ public class SpeechToTextService {
         }
     }
 
-    // n초 동안 텍스트 변환이 없으면 변환을 중단하고 최종 결과를 반환
-    public void startSilenceTimer(Session session, ClientStream<StreamingRecognizeRequest> clientStream) {
-        silenceTimer = new Timer();
-        silenceTimer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                try {
-                    // 타이머가 만료되면 세션 종료 및 최종 텍스트 반환
-                    clientStream.closeSend();
-                    session.getBasicRemote().sendText("변환 종료: 음성 감지 안 됨");
-                    session.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }, SILENCE_THRESHOLD);
-    }
-
-    public void startSilenceTimer(ClientStream<StreamingRecognizeRequest> clientStream) {
-        silenceTimer = new Timer();
-        silenceTimer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                try {
-                    // 타이머가 만료되면 세션 종료 및 최종 텍스트 반환
-                    clientStream.closeSend();
-                    System.out.println("변환 종료: 음성 감지 안 됨");
-                } catch (Exception e) {
-                    System.out.println(e.getMessage());
-                    e.printStackTrace();
-                }
-            }
-        }, SILENCE_THRESHOLD);
-    }
 }

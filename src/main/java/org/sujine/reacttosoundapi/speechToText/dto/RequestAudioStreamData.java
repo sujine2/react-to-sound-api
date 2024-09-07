@@ -10,4 +10,5 @@ public class RequestAudioStreamData {
     int sampleSize;
     int channel;
     boolean bigEndian;
+    boolean isFinal;
 }
