@@ -36,9 +36,10 @@ public class SpeechToTextEndpoint {
     public void onMessage(Session session, RequestAudioStreamData message) throws Exception {
         SpeechToTextService speechService = sessionServiceMap.get(session);
         if (speechService == null) {
-            SpeechToTextService speechToTextService = new SpeechToTextService();
             SpeechToTextService.ResponseObserverSend responseObserver = new SpeechToTextService.ResponseObserverSend(session);
-            speechToTextService.initialize((int)message.getSampleRate(), responseObserver);
+            SpeechToTextService speechToTextService = new SpeechToTextService((int)message.getSampleRate(), responseObserver);
+
+//            speechToTextService.initialize((int)message.getSampleRate(), responseObserver);
 
             sessionServiceMap.put(session, speechToTextService);
             speechToTextService.sendAudioData(message.getRawStream(), message.isFinal());

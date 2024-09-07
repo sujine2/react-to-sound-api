@@ -28,12 +28,10 @@ SpeechToServiceTests {
         RequestAudioStreamData request = this.createRequest(generator, "16");
 
         try {
-            SpeechToTextService speechToTextService = new SpeechToTextService();
             SpeechToTextService.ResponseObserverNotSend responseObserver = new SpeechToTextService.ResponseObserverNotSend();
-
-            speechToTextService.initialize((int)request.getSampleRate(), responseObserver);
+            SpeechToTextService speechToTextService = new SpeechToTextService((int)request.getSampleRate(), responseObserver);
             speechToTextService.sendAudioData(request.getRawStream(), request.isFinal());
-            Thread.sleep(1000);
+            Thread.sleep(10000);
         } catch (Exception e) {
             System.out.println(e.getMessage());
             fail("SpeechToTextService() failed");

@@ -15,37 +15,33 @@ import jakarta.websocket.Session;
 import org.sujine.reacttosoundapi.speechToText.dto.ResponseAudioText;
 
 public class SpeechToTextService {
-    private SpeechClient speechClient;
-    private ClientStream<StreamingRecognizeRequest> requestObserver;
+    private final ClientStream<StreamingRecognizeRequest> requestObserver;
 
-    public void initialize(int sampleRate, ResponseObserver<StreamingRecognizeResponse> responseObserver) throws Exception {
-        speechClient = SpeechClient.create();  // SpeechClient를 생성
-        // 음성 인식 요청 설정
+    public SpeechToTextService(int sampleRate, ResponseObserver<StreamingRecognizeResponse> responseObserver) throws Exception {
+        SpeechClient speechClient = SpeechClient.create();
         RecognitionConfig recognitionConfig = RecognitionConfig.newBuilder()
                 .setEncoding(RecognitionConfig.AudioEncoding.LINEAR16)
                 .setSampleRateHertz(sampleRate)
                 .setLanguageCode("ko-KR")
                 .build();
 
-        // 실시간 음성 인식 설정 (중간 결과 포함)
         StreamingRecognitionConfig streamingConfig = StreamingRecognitionConfig.newBuilder()
                 .setConfig(recognitionConfig)
                 .setInterimResults(true)
                 .build();
 
-        requestObserver = speechClient.streamingRecognizeCallable().splitCall(responseObserver);  // StreamObserver 통한 양방향 처리
+        requestObserver = speechClient.streamingRecognizeCallable().splitCall(responseObserver);
 
         // 첫 요청에 StreamingConfig를 보내야 함
         StreamingRecognizeRequest initialRequest = StreamingRecognizeRequest.newBuilder()
                 .setStreamingConfig(streamingConfig)
                 .build();
-        requestObserver.send(initialRequest);  // 초기 설정 요청 전송
+        requestObserver.send(initialRequest);
     }
 
     // 음성 데이터를 전송하는 메서드
     public void sendAudioData(byte[] audioData, boolean isFinal) {
         if (requestObserver != null) {
-            // 음성 데이터를 Google Cloud로 전송
             StreamingRecognizeRequest request = StreamingRecognizeRequest.newBuilder()
                     .setAudioContent(ByteString.copyFrom(audioData))
                     .build();
@@ -69,6 +65,7 @@ public class SpeechToTextService {
     // 응답 처리 및 서버로부터의 응답을 받는 ResponseObserver
     public static class ResponseObserverSend implements ResponseObserver<StreamingRecognizeResponse> {
         private Session session;
+        private OpenAIService openAIService = new OpenAIService();
         private StringBuilder finalTranscript = new StringBuilder();  // 최종 텍스트를 저장할 버퍼
 
         public ResponseObserverSend(Session session) {
@@ -93,6 +90,8 @@ public class SpeechToTextService {
                         finalTranscript.append(transcript);
 //                        System.out.println(new ResponseAudioText(transcript, true).toString());
                         this.session.getBasicRemote().sendObject(new ResponseAudioText(transcript, true));
+                        String answer = openAIService.askGpt(transcript);
+                        this.session.getBasicRemote().sendText(answer);
                     } else {
                         // 중간 결과일 경우
 //                        System.out.println(new ResponseAudioText(transcript, false).toString());
@@ -125,6 +124,7 @@ public class SpeechToTextService {
     }
 
     public static class ResponseObserverNotSend implements ResponseObserver<StreamingRecognizeResponse> {
+        private OpenAIService openAIService = new OpenAIService();
         private StringBuilder finalTranscript = new StringBuilder();  // 최종 텍스트를 저장할 버퍼
 
         @Override
@@ -144,6 +144,8 @@ public class SpeechToTextService {
                     if (result.getIsFinal()) {
                         finalTranscript.append(transcript);
                         System.out.println(new ResponseAudioText(transcript, true).toString());
+                        String answer = openAIService.askGpt(transcript);
+                        System.out.println("answer:" + answer);
                     } else {
                         System.out.println(new ResponseAudioText(transcript, false).toString());
                     }
