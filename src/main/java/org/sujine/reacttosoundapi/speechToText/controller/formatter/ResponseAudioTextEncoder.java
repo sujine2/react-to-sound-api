@@ -3,14 +3,15 @@ package org.sujine.reacttosoundapi.speechToText.controller.formatter;
 import jakarta.json.Json;
 import jakarta.websocket.EncodeException;
 import jakarta.websocket.Encoder;
-import org.sujine.reacttosoundapi.speechToText.dto.ResponseAudioText;
+import org.sujine.reacttosoundapi.speechToText.dto.ResponseText;
 
-public class ResponseAudioTextEncoder implements Encoder.Text<ResponseAudioText> {
+public class ResponseAudioTextEncoder implements Encoder.Text<ResponseText> {
     @Override
-    public String encode(ResponseAudioText responseAudioText) throws EncodeException {
+    public String encode(ResponseText responseText) throws EncodeException {
         return Json.createObjectBuilder()
-                .add("result", responseAudioText.getResult())
-                .add("bigEndian", responseAudioText.isFinal())
+                .add("result", responseText.getResult())
+                .add("response", responseText.isResponse())
+                .add("bigEndian", responseText.isFinal())
                 .build()
                 .toString();
     }

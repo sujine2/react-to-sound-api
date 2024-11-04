@@ -5,8 +5,9 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 
-public class ResponseAudioText {
+public class ResponseText {
     String result;
+    boolean isResponse;
     boolean isFinal;
 
     @Override

@@ -43,7 +43,6 @@ public class OpenAIService {
 
             // API 키 가져오기
             apiKey = prop.getProperty("OPEN_AI");
-            System.out.println("API Key: " + apiKey);
         } catch (IOException e) {
             e.printStackTrace();
         }
