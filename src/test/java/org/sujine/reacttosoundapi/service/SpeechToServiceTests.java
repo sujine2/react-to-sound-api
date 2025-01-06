@@ -1,20 +1,16 @@
 package org.sujine.reacttosoundapi.service;
 
-import com.google.api.gax.rpc.ClientStream;
-import com.google.cloud.speech.v1.StreamingRecognizeRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sujine.reacttosoundapi.TestStreamData;
 import org.sujine.reacttosoundapi.speechToText.dto.RequestAudioStreamData;
 import org.sujine.reacttosoundapi.speechToText.service.SpeechToTextService;
-import org.sujine.reacttosoundapi.voiceColor.utils.AudioStreamFormatter;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.fail;
 

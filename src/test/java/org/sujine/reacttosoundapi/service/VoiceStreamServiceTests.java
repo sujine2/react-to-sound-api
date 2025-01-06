@@ -3,10 +3,11 @@ package org.sujine.reacttosoundapi.service;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sujine.reacttosoundapi.TestStreamData;
+import org.sujine.reacttosoundapi.voiceColor.domain.VoiceStream;
 import org.sujine.reacttosoundapi.voiceColor.dto.RequestAudioStreamData;
 import org.sujine.reacttosoundapi.voiceColor.dto.ResponseRGB;
-import org.sujine.reacttosoundapi.voiceColor.service.VoiceService;
-import org.sujine.reacttosoundapi.voiceColor.utils.AudioStreamFormatter;
+import org.sujine.reacttosoundapi.voiceColor.service.AudioProcessingService;
+import org.sujine.reacttosoundapi.utils.AudioStreamFormatter;
 
 import javax.sound.sampled.*;
 import java.io.File;
@@ -17,7 +18,7 @@ import java.util.concurrent.ExecutorService;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class VoiceServiceTests {
+public class VoiceStreamServiceTests {
 
     // sampleRate: [8000, 16000, 32000, 48000]
     // sampleSize: [16, 32, 48]
@@ -27,7 +28,12 @@ public class VoiceServiceTests {
         TestStreamData generator = new TestStreamData((float) 32000.0,16, false);
 
         RequestAudioStreamData request = this.createRequest(generator, "16");
-        byte[] vadByte = VoiceService.getVad(request);
+        VoiceStream voiceStream = new VoiceStream(request.getRawStream(), request.getSampleRate());
+        byte[] vadByte = AudioStreamFormatter.convertDoubleToByteArray(
+                voiceStream.getStream(),
+                request.getSampleSize(),
+                request.isBigEndian()
+        );
         this.createVoiceStream(generator, vadByte,"16");
     }
 
@@ -37,7 +43,12 @@ public class VoiceServiceTests {
         TestStreamData generator = new TestStreamData((float) 48000.0,16, false);
 
         RequestAudioStreamData request = this.createRequest(generator, "48");
-        byte[] vadByte = VoiceService.getVad(request);
+        VoiceStream voiceStream = new VoiceStream(request.getRawStream(), request.getSampleRate());
+        byte[] vadByte = AudioStreamFormatter.convertDoubleToByteArray(
+                voiceStream.getStream(),
+                request.getSampleSize(),
+                request.isBigEndian()
+        );
         this.createVoiceStream(generator, vadByte,"48");
     }
 
@@ -47,7 +58,7 @@ public class VoiceServiceTests {
         TestStreamData generator = new TestStreamData((float) 16000,16, false);
         RequestAudioStreamData request = this.createRequest(generator, "16");
         try {
-            ResponseRGB[] colors = new VoiceService().getMainVoiceColor(request);
+            ResponseRGB[] colors = new AudioProcessingService().extractMainVoiceColor(request);
             System.out.println(Arrays.deepToString(colors));
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -61,7 +72,7 @@ public class VoiceServiceTests {
         TestStreamData generator = new TestStreamData((float) 32000,16, false);
         RequestAudioStreamData request = this.createRequest(generator, "32");
         try {
-            ResponseRGB[] colors = new VoiceService().getMainVoiceColor(request);
+            ResponseRGB[] colors = new AudioProcessingService().extractMainVoiceColor(request);
             System.out.println(Arrays.deepToString(colors));
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -75,7 +86,7 @@ public class VoiceServiceTests {
         TestStreamData generator = new TestStreamData((float) 48000.0,16, false);
         RequestAudioStreamData request = this.createRequest(generator, "48");
         try {
-            ResponseRGB[] colors = new VoiceService().getMainVoiceColor(request);
+            ResponseRGB[] colors = new AudioProcessingService().extractMainVoiceColor(request);
             System.out.println(Arrays.deepToString(colors));
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -88,10 +99,10 @@ public class VoiceServiceTests {
     public void getColorMultiThreadTest() throws IOException {
         TestStreamData generator = new TestStreamData((float) 48000.0,16, false);
         RequestAudioStreamData request = this.createRequest(generator, "48");
-        VoiceService voiceService = new VoiceService();
+        AudioProcessingService voiceService = new AudioProcessingService();
         try {
             for(int i=1; i<=10; i++) {
-                ResponseRGB[] colors = voiceService.getMainVoiceColor(request);
+                ResponseRGB[] colors = voiceService.extractMainVoiceColor(request);
                 System.out.println("multithread test # "+ i + " " +Arrays.deepToString(colors));
             }
         } catch (Exception e) {
