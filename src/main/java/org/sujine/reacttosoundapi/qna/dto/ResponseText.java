@@ -1,4 +1,4 @@
-package org.sujine.reacttosoundapi.qa.dto;
+package org.sujine.reacttosoundapi.qna.dto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

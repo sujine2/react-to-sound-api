@@ -1,10 +1,10 @@
-package org.sujine.reacttosoundapi.qa.controller.formatter;
+package org.sujine.reacttosoundapi.qna.controller.formatter;
 
 import jakarta.json.Json;
 import jakarta.json.JsonArray;
 import jakarta.json.JsonObject;
 import jakarta.websocket.Decoder;
-import org.sujine.reacttosoundapi.qa.dto.RequestAudioStreamData;
+import org.sujine.reacttosoundapi.qna.dto.RequestAudioStreamData;
 
 import java.io.StringReader;
 

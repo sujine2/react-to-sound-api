@@ -1,9 +1,9 @@
-package org.sujine.reacttosoundapi.qa.controller.formatter;
+package org.sujine.reacttosoundapi.qna.controller.formatter;
 
 import jakarta.json.Json;
 import jakarta.websocket.EncodeException;
 import jakarta.websocket.Encoder;
-import org.sujine.reacttosoundapi.qa.dto.ResponseText;
+import org.sujine.reacttosoundapi.qna.dto.ResponseText;
 
 public class ResponseAudioTextEncoder implements Encoder.Text<ResponseText> {
     @Override
