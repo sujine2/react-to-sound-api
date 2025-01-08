@@ -2,6 +2,7 @@ package org.sujine.reacttosoundapi.service;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.sujine.reacttosoundapi.TestStreamData;
 import org.sujine.reacttosoundapi.voiceColor.domain.VoiceStream;
 import org.sujine.reacttosoundapi.voiceColor.dto.RequestAudioStreamData;
@@ -99,7 +100,8 @@ public class VoiceStreamServiceTests {
     public void getColorMultiThreadTest() throws IOException {
         TestStreamData generator = new TestStreamData((float) 48000.0,16, false);
         RequestAudioStreamData request = this.createRequest(generator, "48");
-        AudioProcessingService voiceService = new AudioProcessingService();
+        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AudioProcessingService.class);
+        AudioProcessingService voiceService = context.getBean(AudioProcessingService.class);
         try {
             for(int i=1; i<=10; i++) {
                 ResponseRGB[] colors = voiceService.extractMainVoiceColor(request);
@@ -110,9 +112,10 @@ public class VoiceStreamServiceTests {
             fail("getMainVoiceColor() failed");
         }
 
-        ExecutorService executor = voiceService.getExecutorService();
-        System.out.println("multithread test # "+ executor.isTerminated());
+        context.close();
 
+        ExecutorService executor = voiceService.getExecutorService();
+        System.out.println("multithread isTerminated # "+ executor.isTerminated());
     }
 
     private RequestAudioStreamData createRequest(TestStreamData generator, String sampleRate) {
