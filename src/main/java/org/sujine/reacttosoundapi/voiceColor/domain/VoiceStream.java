@@ -8,7 +8,6 @@ import org.apache.commons.math3.transform.TransformType;
 import org.jitsi.webrtcvadwrapper.WebRTCVad;
 import org.sujine.reacttosoundapi.voiceColor.domain.utils.AudioStreamFormatter;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -16,9 +15,9 @@ import java.util.Arrays;
 public class VoiceStream {
     private final double[] stream;
     private final float sampleRate;
-    private final int mode = 3;
-//    private double[] frequencies;
-    private final int fftSize = 1024;
+    private static final int mode = 3;
+    private static final int fftSize = 1024;
+    //    private double[] frequencies;
 
     public VoiceStream(double[] rawStream, float sampleRate) {
         this.sampleRate = sampleRate;
@@ -47,7 +46,6 @@ public class VoiceStream {
             int end = (int)Math.min(start + this.fftSize, streamLength);
             int size = (end != streamLength)? this.fftSize: this.fftSize + streamLength - (start + this.fftSize);
             double[] segment = new double[size];
-//            System.out.println(size);
             System.arraycopy(this.stream, start, segment, 0, size);
 
             if (end == streamLength) segment = AudioStreamFormatter.padArrayToNextPowerOfTwo(segment);

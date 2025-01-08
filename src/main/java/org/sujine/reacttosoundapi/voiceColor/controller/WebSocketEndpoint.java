@@ -2,6 +2,8 @@ package org.sujine.reacttosoundapi.voiceColor.controller;
 
 import jakarta.websocket.*;
 import jakarta.websocket.server.ServerEndpoint;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.sujine.reacttosoundapi.voiceColor.controller.formatter.RequestAudioStreamJSONDecoder;
 import org.sujine.reacttosoundapi.voiceColor.controller.formatter.ResponseRGBJSONEncoder;
 import org.sujine.reacttosoundapi.voiceColor.dto.RequestAudioStreamData;
@@ -12,12 +14,19 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutionException;
 
+@Controller
 @ServerEndpoint(value = "/voiceColor",
                 encoders = {ResponseRGBJSONEncoder.class},
                 decoders = {RequestAudioStreamJSONDecoder.class}
 )
-public class WebSocketController {
+public class WebSocketEndpoint {
     private static Set<Session> sessions = new CopyOnWriteArraySet<>();
+    private final AudioProcessingService audioProcessingService;
+
+    @Autowired
+    public WebSocketEndpoint(AudioProcessingService audioProcessingService) {
+        this.audioProcessingService = audioProcessingService;
+    }
 
     @OnOpen
     public void onOpen(Session session) throws IOException {
@@ -29,7 +38,7 @@ public class WebSocketController {
     @OnMessage
     public void onMessage(Session session, RequestAudioStreamData message)
             throws IOException, IllegalArgumentException, ExecutionException, InterruptedException, EncodeException {
-        session.getBasicRemote().sendObject(new AudioProcessingService().extractMainVoiceColor(message));
+        session.getBasicRemote().sendObject(audioProcessingService.extractMainVoiceColor(message));
     }
 
     @OnClose

@@ -1,4 +1,4 @@
-package org.sujine.reacttosoundapi.speechToText.service;
+package org.sujine.reacttosoundapi.qna.service;
 
 import com.google.api.gax.rpc.ClientStream;
 import com.google.api.gax.rpc.ResponseObserver;
@@ -12,7 +12,8 @@ import com.google.cloud.speech.v1.StreamingRecognitionResult;
 import com.google.protobuf.ByteString;
 
 import jakarta.websocket.Session;
-import org.sujine.reacttosoundapi.speechToText.dto.ResponseAudioText;
+import org.springframework.stereotype.Service;
+import org.sujine.reacttosoundapi.qna.dto.ResponseText;
 
 public class SpeechToTextService {
     private final ClientStream<StreamingRecognizeRequest> requestObserver;
@@ -39,7 +40,6 @@ public class SpeechToTextService {
         requestObserver.send(initialRequest);
     }
 
-    // 음성 데이터를 전송하는 메서드
     public void sendAudioData(byte[] audioData, boolean isFinal) {
         if (requestObserver != null) {
             StreamingRecognizeRequest request = StreamingRecognizeRequest.newBuilder()
@@ -62,11 +62,11 @@ public class SpeechToTextService {
         }
     }
 
-    // 응답 처리 및 서버로부터의 응답을 받는 ResponseObserver
+    // ResponseObserver
     public static class ResponseObserverSend implements ResponseObserver<StreamingRecognizeResponse> {
         private Session session;
-        private OpenAIService openAIService = new OpenAIService();
-        private StringBuilder finalTranscript = new StringBuilder();  // 최종 텍스트를 저장할 버퍼
+        private static final OpenAIService openAIService = new OpenAIService();
+        private static final StringBuilder finalTranscript = new StringBuilder();  // final text
 
         public ResponseObserverSend(Session session) {
             this.session = session;
@@ -74,7 +74,6 @@ public class SpeechToTextService {
 
         @Override
         public void onStart(StreamController controller) {
-            // 스트림이 시작될 때 호출
             System.out.println("Streaming started.");
         }
 
@@ -88,14 +87,13 @@ public class SpeechToTextService {
 
                     if (result.getIsFinal()) {
                         finalTranscript.append(transcript);
-//                        System.out.println(new ResponseAudioText(transcript, true).toString());
-                        this.session.getBasicRemote().sendObject(new ResponseAudioText(transcript, true));
+//                       System.out.println(new ResponseAudioText(transcript, true).toString());
+                        this.session.getBasicRemote().sendObject(new ResponseText(transcript, false, true));
                         String answer = openAIService.askGpt(transcript);
-                        this.session.getBasicRemote().sendText(answer);
+                        this.session.getBasicRemote().sendObject(new ResponseText(answer, true, false));
                     } else {
-                        // 중간 결과일 경우
 //                        System.out.println(new ResponseAudioText(transcript, false).toString());
-                        this.session.getBasicRemote().sendObject(new ResponseAudioText(transcript, false));
+                        this.session.getBasicRemote().sendObject(new ResponseText(transcript, false,false));
                     }
                 }
             } catch (Exception e) {
@@ -117,25 +115,22 @@ public class SpeechToTextService {
             System.out.println("Speech recognition completed.");
         }
 
-        // 최종 텍스트 반환 메서드
         public String getFinalTranscript() {
             return finalTranscript.toString();
         }
     }
 
     public static class ResponseObserverNotSend implements ResponseObserver<StreamingRecognizeResponse> {
-        private OpenAIService openAIService = new OpenAIService();
-        private StringBuilder finalTranscript = new StringBuilder();  // 최종 텍스트를 저장할 버퍼
+        private final OpenAIService openAIService = new OpenAIService();
+        private static final StringBuilder finalTranscript = new StringBuilder();
 
         @Override
         public void onStart(StreamController controller) {
-            // 스트림이 시작될 때 호출됩니다. 초기화 작업을 이곳에 작성할 수 있습니다.
             System.out.println("Streaming started.");
         }
 
         @Override
         public void onResponse(StreamingRecognizeResponse response) {
-            // 응답이 올 때마다 호출됩니다.
             try {
                 if (!response.getResultsList().isEmpty()) {
                     StreamingRecognitionResult result = response.getResultsList().get(0);
@@ -143,11 +138,11 @@ public class SpeechToTextService {
 
                     if (result.getIsFinal()) {
                         finalTranscript.append(transcript);
-                        System.out.println(new ResponseAudioText(transcript, true).toString());
+                        System.out.println(new ResponseText(transcript, true,true).toString());
                         String answer = openAIService.askGpt(transcript);
-                        System.out.println("answer:" + answer);
+                        System.out.println("answer:" + new ResponseText(answer, true, false));
                     } else {
-                        System.out.println(new ResponseAudioText(transcript, false).toString());
+                        System.out.println(new ResponseText(transcript, true,false).toString());
                     }
                 }
             } catch (Exception e) {

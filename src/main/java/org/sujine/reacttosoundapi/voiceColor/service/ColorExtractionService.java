@@ -1,6 +1,5 @@
 package org.sujine.reacttosoundapi.voiceColor.service;
 
-import lombok.AllArgsConstructor;
 import org.sujine.reacttosoundapi.voiceColor.domain.VoiceStream;
 import org.sujine.reacttosoundapi.voiceColor.dto.RequestAudioStreamData;
 import org.sujine.reacttosoundapi.voiceColor.dto.ResponseRGB;
@@ -8,12 +7,15 @@ import org.sujine.reacttosoundapi.voiceColor.dto.ResponseRGB;
 import java.awt.*;
 import java.util.concurrent.Callable;
 
-@AllArgsConstructor
 public class ColorExtractionService implements Callable<ResponseRGB[]> {
-    private RequestAudioStreamData streamData;
+    private final RequestAudioStreamData streamData;
+
+    public ColorExtractionService(RequestAudioStreamData streamData) {
+        this.streamData = streamData;
+    }
 
     public ResponseRGB[] call() throws IllegalArgumentException {
-//        System.out.println("thread id #" + Thread.currentThread().threadId());
+         System.out.println("Running on thread: " + Thread.currentThread().getName());
         VoiceStream voiceStream = new VoiceStream(this.streamData.getRawStream(), this.streamData.getSampleRate());
         double[][] frequenciesWithMagnitude = voiceStream.extractFrequency();
 
@@ -27,10 +29,8 @@ public class ColorExtractionService implements Callable<ResponseRGB[]> {
 
     private static Color frequencyToColor(double frequency, double magnitude) {
         double minFrequency = 100.0;    // minimum audio frequency
-        double maxFrequency = 1000.0; // maximum audio frequency
-        double maxMagnitude = 50;     // for use in brightness and saturation
-//        System.out.println(magnitude);
-//        System.out.println(frequency);
+        double maxFrequency = 1000.0;   // maximum audio frequency
+        double maxMagnitude = 50;       // for use in brightness and saturation
         double normalizedFrequency = (frequency - minFrequency) / (maxFrequency - minFrequency);
         float saturation = (float)Math.min(1.0, magnitude / maxMagnitude);
         float brightness = (float) 1.0 - saturation;

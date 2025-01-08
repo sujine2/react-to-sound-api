@@ -1,4 +1,4 @@
-package org.sujine.reacttosoundapi.speechToText.dto;
+package org.sujine.reacttosoundapi.qa.dto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

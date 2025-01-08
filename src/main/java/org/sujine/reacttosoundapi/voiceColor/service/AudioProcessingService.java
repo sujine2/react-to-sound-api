@@ -1,30 +1,34 @@
 package org.sujine.reacttosoundapi.voiceColor.service;
 
 import lombok.Getter;
+import org.springframework.stereotype.Service;
 import org.sujine.reacttosoundapi.voiceColor.dto.RequestAudioStreamData;
 import org.sujine.reacttosoundapi.voiceColor.dto.ResponseRGB;
 
-import java.util.ArrayList;
+import javax.annotation.PreDestroy;
 import java.util.concurrent.*;
 
+@Service
 @Getter
 public class AudioProcessingService {
-    public ArrayList<ExecutorService> executors = new ArrayList<>();
+    private final ExecutorService executorService = Executors.newVirtualThreadPerTaskExecutor();
 
-    public ResponseRGB[] extractMainVoiceColor(RequestAudioStreamData streamData) throws IllegalArgumentException, ExecutionException, InterruptedException {
+    public  ResponseRGB[] extractMainVoiceColor(RequestAudioStreamData streamData) throws IllegalArgumentException, ExecutionException, InterruptedException {
         ColorExtractionService colorExtractionService = new ColorExtractionService(streamData);
-        ExecutorService executorService = Executors.newSingleThreadExecutor();
-        this.executors.add(executorService);
         Future<ResponseRGB[]> responseRGBs = executorService.submit(colorExtractionService);
-        executorService.shutdown();
+        return responseRGBs.get();
+    }
 
+    @PreDestroy
+    public void shutdown() {
         try {
-            if (!executorService.awaitTermination(800, TimeUnit.MILLISECONDS)) {
+            executorService.shutdown();
+            if (!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
                 executorService.shutdownNow();
             }
         } catch (InterruptedException e) {
             executorService.shutdownNow();
+            Thread.currentThread().interrupt();
         }
-        return responseRGBs.get();
     }
 }

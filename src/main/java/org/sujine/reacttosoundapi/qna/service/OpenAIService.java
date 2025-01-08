@@ -1,4 +1,4 @@
-package org.sujine.reacttosoundapi.speechToText.service;
+package org.sujine.reacttosoundapi.qa.service;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -35,7 +35,7 @@ public class OpenAIService {
     """;
 
     public OpenAIService() {
-        System.out.println("현재 작업 디렉토리: " + System.getProperty("user.dir"));
+        // System.out.println("current directory: " + System.getProperty("user.dir"));
 
         try (FileInputStream input = new FileInputStream(configPath)) {
             Properties prop = new Properties();
