@@ -110,10 +110,9 @@ public class VoiceStreamServiceTests {
             fail("getMainVoiceColor() failed");
         }
 
-        ArrayList<ExecutorService> executors = voiceService.getExecutors();
-        for(ExecutorService executor : executors) {
-            System.out.println("multithread test # "+ executor.isTerminated());
-        }
+        ExecutorService executor = voiceService.getExecutorService();
+        System.out.println("multithread test # "+ executor.isTerminated());
+
     }
 
     private RequestAudioStreamData createRequest(TestStreamData generator, String sampleRate) {

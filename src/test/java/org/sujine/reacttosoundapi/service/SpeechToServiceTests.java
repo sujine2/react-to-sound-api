@@ -3,8 +3,8 @@ package org.sujine.reacttosoundapi.service;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sujine.reacttosoundapi.TestStreamData;
-import org.sujine.reacttosoundapi.speechToText.dto.RequestAudioStreamData;
-import org.sujine.reacttosoundapi.speechToText.service.SpeechToTextService;
+import org.sujine.reacttosoundapi.qna.dto.RequestAudioStreamData;
+import org.sujine.reacttosoundapi.TestSTTService;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -24,9 +24,9 @@ SpeechToServiceTests {
         RequestAudioStreamData request = this.createRequest(generator, "16");
 
         try {
-            SpeechToTextService.ResponseObserverNotSend responseObserver = new SpeechToTextService.ResponseObserverNotSend();
-            SpeechToTextService speechToTextService = new SpeechToTextService((int)request.getSampleRate(), responseObserver);
-            speechToTextService.sendAudioData(request.getRawStream(), request.isFinal());
+            TestSTTService.ResponseObserverNotSend responseObserver = new TestSTTService.ResponseObserverNotSend();
+            TestSTTService STTService = new TestSTTService((int)request.getSampleRate(), responseObserver);
+            STTService.sendAudioData(request.getRawStream(), request.isFinal());
             Thread.sleep(10000);
         } catch (Exception e) {
             System.out.println(e.getMessage());
