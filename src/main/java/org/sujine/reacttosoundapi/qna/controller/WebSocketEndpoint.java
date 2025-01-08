@@ -1,4 +1,4 @@
-package org.sujine.reacttosoundapi.speechToText.controller;
+package org.sujine.reacttosoundapi.qna.controller;
 
 import jakarta.websocket.*;
 import jakarta.websocket.server.ServerEndpoint;
