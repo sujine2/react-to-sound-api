@@ -26,12 +26,10 @@ public class VoiceStream {
         double frameDuration = 0.01; // 10ms
         int frameSize = (int)(sampleRate * frameDuration);
         WebRTCVad vad = new WebRTCVad((int)sampleRate, mode);
-
         for (int start = 0; start < rawStream.length; start += frameSize) {
             int stop = (int)Math.min(start + frameSize, rawStream.length);
             double[] frame = AudioStreamFormatter.padArray(Arrays.copyOfRange(rawStream, start, stop), frameSize);
             if(vad.isSpeech(frame)) onlyVoice.add(frame);
-
         }
         this.stream = onlyVoice.stream().flatMapToDouble(Arrays::stream).toArray();
     }

@@ -10,7 +10,7 @@ import java.util.concurrent.*;
 
 @Service
 @Getter
-public class VoiceColorsExtractionService {
+public class VoiceColorExtractionService {
     private final ExecutorService executorService = Executors.newVirtualThreadPerTaskExecutor();
 
     public ResponseRGB[] getColorsWithThread(RequestAudioStreamData streamData) throws IllegalArgumentException, ExecutionException, InterruptedException {

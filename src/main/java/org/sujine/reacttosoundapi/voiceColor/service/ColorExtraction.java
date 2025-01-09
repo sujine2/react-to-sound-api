@@ -7,10 +7,10 @@ import org.sujine.reacttosoundapi.voiceColor.dto.ResponseRGB;
 import java.awt.*;
 import java.util.concurrent.Callable;
 
-public class ColorExtractionService implements Callable<ResponseRGB[]> {
+public class ColorExtraction implements Callable<ResponseRGB[]> {
     private final RequestAudioStreamData streamData;
 
-    public ColorExtractionService(RequestAudioStreamData streamData) {
+    public ColorExtraction(RequestAudioStreamData streamData) {
         this.streamData = streamData;
     }
 
