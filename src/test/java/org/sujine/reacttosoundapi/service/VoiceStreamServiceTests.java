@@ -1,65 +1,76 @@
 package org.sujine.reacttosoundapi.service;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.sujine.reacttosoundapi.TestStreamData;
+import org.sujine.reacttosoundapi.utils.StreamDataFactory;
 import org.sujine.reacttosoundapi.voiceColor.domain.VoiceStream;
 import org.sujine.reacttosoundapi.voiceColor.dto.RequestAudioStreamData;
 import org.sujine.reacttosoundapi.voiceColor.dto.ResponseRGB;
-import org.sujine.reacttosoundapi.voiceColor.service.AudioProcessingService;
+import org.sujine.reacttosoundapi.voiceColor.service.VoiceColorExtractionService;
 import org.sujine.reacttosoundapi.utils.AudioStreamFormatter;
 
-import javax.sound.sampled.*;
-import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
+// sampleRate: [8000, 16000, 32000, 48000]
+// sampleSize: [16, 32, 48]
+@ExtendWith(MockitoExtension.class)
 public class VoiceStreamServiceTests {
+    private final VoiceColorExtractionService voiceColorExtractionService = new VoiceColorExtractionService();
 
-    // sampleRate: [8000, 16000, 32000, 48000]
-    // sampleSize: [16, 32, 48]
+    private StreamDataFactory streamDataFactory;
+
+    @BeforeEach
+    void setUp() {
+        streamDataFactory = new StreamDataFactory();
+    }
+
     @DisplayName("32000.0 sample rate audio stream")
     @Test
     public void getVad32SampleRateTest() throws IOException {
-        TestStreamData generator = new TestStreamData((float) 32000.0,16, false);
+        streamDataFactory.setAudioFormat((float) 32000.0,16, false);
 
-        RequestAudioStreamData request = this.createRequest(generator, "16");
+        RequestAudioStreamData request = streamDataFactory.createVoiceColorRequest();
         VoiceStream voiceStream = new VoiceStream(request.getRawStream(), request.getSampleRate());
         byte[] vadByte = AudioStreamFormatter.convertDoubleToByteArray(
                 voiceStream.getStream(),
                 request.getSampleSize(),
                 request.isBigEndian()
         );
-        this.createVoiceStream(generator, vadByte,"16");
+        streamDataFactory.createStreamFile(vadByte);
     }
 
     @DisplayName("48000.0 sample rate audio stream")
     @Test
     public void getVad48SampleRateTest() throws IOException {
-        TestStreamData generator = new TestStreamData((float) 48000.0,16, false);
+        streamDataFactory.setAudioFormat((float) 48000.0,16, false);
 
-        RequestAudioStreamData request = this.createRequest(generator, "48");
+        RequestAudioStreamData request = streamDataFactory.createVoiceColorRequest();
         VoiceStream voiceStream = new VoiceStream(request.getRawStream(), request.getSampleRate());
         byte[] vadByte = AudioStreamFormatter.convertDoubleToByteArray(
                 voiceStream.getStream(),
                 request.getSampleSize(),
                 request.isBigEndian()
         );
-        this.createVoiceStream(generator, vadByte,"48");
+        streamDataFactory.createStreamFile(vadByte);
     }
 
     @DisplayName("get color of 16000.0 sample rate audio stream")
     @Test
     public void getColor16SampleRateTest() throws IOException {
-        TestStreamData generator = new TestStreamData((float) 16000,16, false);
-        RequestAudioStreamData request = this.createRequest(generator, "16");
+        streamDataFactory.setAudioFormat((float) 16000,16, false);
+        RequestAudioStreamData request = streamDataFactory.createVoiceColorRequest();
+
         try {
-            ResponseRGB[] colors = new AudioProcessingService().extractMainVoiceColor(request);
+            ResponseRGB[] colors = this.voiceColorExtractionService.getColorsWithThread(request);
             System.out.println(Arrays.deepToString(colors));
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -70,10 +81,11 @@ public class VoiceStreamServiceTests {
     @DisplayName("get color of 32000.0 sample rate audio stream")
     @Test
     public void getColor32SampleRateTest() throws IOException {
-        TestStreamData generator = new TestStreamData((float) 32000,16, false);
-        RequestAudioStreamData request = this.createRequest(generator, "32");
+        streamDataFactory.setAudioFormat((float) 32000,16, false);
+        RequestAudioStreamData request = streamDataFactory.createVoiceColorRequest();
+
         try {
-            ResponseRGB[] colors = new AudioProcessingService().extractMainVoiceColor(request);
+            ResponseRGB[] colors = this.voiceColorExtractionService.getColorsWithThread(request);
             System.out.println(Arrays.deepToString(colors));
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -84,10 +96,11 @@ public class VoiceStreamServiceTests {
     @DisplayName("get color of 48000.0 sample rate audio stream")
     @Test
     public void getColor48SampleRateTest() throws IOException {
-        TestStreamData generator = new TestStreamData((float) 48000.0,16, false);
-        RequestAudioStreamData request = this.createRequest(generator, "48");
+        streamDataFactory.setAudioFormat((float) 48000.0,16, false);
+        RequestAudioStreamData request = streamDataFactory.createVoiceColorRequest();
+
         try {
-            ResponseRGB[] colors = new AudioProcessingService().extractMainVoiceColor(request);
+            ResponseRGB[] colors = this.voiceColorExtractionService.getColorsWithThread(request);
             System.out.println(Arrays.deepToString(colors));
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -98,62 +111,23 @@ public class VoiceStreamServiceTests {
     @DisplayName("get color function with multi thread")
     @Test
     public void getColorMultiThreadTest() throws IOException {
-        TestStreamData generator = new TestStreamData((float) 48000.0,16, false);
-        RequestAudioStreamData request = this.createRequest(generator, "48");
-        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AudioProcessingService.class);
-        AudioProcessingService voiceService = context.getBean(AudioProcessingService.class);
+        streamDataFactory.setAudioFormat((float) 48000.0,16, false);
+        RequestAudioStreamData request = streamDataFactory.createVoiceColorRequest();
+
+        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(VoiceColorExtractionService.class);
+        VoiceColorExtractionService voiceService = context.getBean(VoiceColorExtractionService.class);
         try {
             for(int i=1; i<=10; i++) {
-                ResponseRGB[] colors = voiceService.extractMainVoiceColor(request);
-                System.out.println("multithread test # "+ i + " " +Arrays.deepToString(colors));
+                ResponseRGB[] colors = voiceService.getColorsWithThread(request);
+                System.out.println("multithread test # "+ i + " " + Arrays.deepToString(colors));
             }
         } catch (Exception e) {
             System.out.println(e.getMessage());
-            fail("getMainVoiceColor() failed");
+            fail("getColorsWithThread() failed");
         }
-
         context.close();
-
-        ExecutorService executor = voiceService.getExecutorService();
+        ExecutorService executor = this.voiceColorExtractionService.getExecutorService();
         System.out.println("multithread isTerminated # "+ executor.isTerminated());
-    }
-
-    private RequestAudioStreamData createRequest(TestStreamData generator, String sampleRate) {
-        RequestAudioStreamData request = null;
-        try {
-            byte[] inputRawByte = generator.createVoiceRawStream();
-            AudioInputStream inputStream = generator.createAudioInputStream(inputRawByte);
-            File file = new File("vad"+sampleRate+"TestInput.wav");
-            AudioSystem.write(inputStream, AudioFileFormat.Type.WAVE, file);
-
-            double[] stream = AudioStreamFormatter.convertStreamToDoubleArray(
-                    inputRawByte,
-                    16,
-                    false
-            );
-            request = new RequestAudioStreamData(
-                    stream,
-                    inputStream.getFormat().getSampleRate(),
-                    inputStream.getFormat().getSampleSizeInBits(),
-                    1,
-                    false
-            );
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            fail("createRawVoiceStream() failed");
-        }
-        return request;
-    }
-
-    private void createVoiceStream(TestStreamData generator, byte[] outputStream, String sampleRate) {
-        try {
-            AudioInputStream vadStream = generator.createAudioInputStream(outputStream);
-            File file = new File("vad16TestResult.wav");
-            AudioSystem.write(vadStream, AudioFileFormat.Type.WAVE, file);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            fail("createVoiceStream() failed");
-        }
     }
 
 }

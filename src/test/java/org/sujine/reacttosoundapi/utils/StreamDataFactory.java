@@ -1,8 +1,7 @@
 package org.sujine.reacttosoundapi.utils;
 
-
 import org.sujine.reacttosoundapi.voiceColor.dto.RequestAudioStreamData;
-
+import org.sujine.reacttosoundapi.qna.dto.QuestionAudioStream;
 import javax.sound.sampled.*;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -11,11 +10,11 @@ import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class TestStreamDataFactory{
+public class StreamDataFactory {
     AudioFormat audioFormat;
     private static final int channel = 1; // mono
 
-    public TestStreamDataFactory(float sampleRate, int sampleSize, boolean bigEndian) {
+    public void setAudioFormat(float sampleRate, int sampleSize, boolean bigEndian) {
          this.audioFormat = new AudioFormat(
                 AudioFormat.Encoding.PCM_SIGNED,    // encoding
                  sampleRate,                        // sample rate
@@ -25,7 +24,6 @@ public class TestStreamDataFactory{
                  sampleRate,                        // frame rate
                  bigEndian                          // bigEndian
         );
-
     }
 
     public void createStreamFile(byte[] outputStream) {
@@ -39,12 +37,40 @@ public class TestStreamDataFactory{
         }
     }
 
+    public QuestionAudioStream createSTTRequest() {
+        QuestionAudioStream request = null;
+        try {
+            byte[] inputRawByte = this.createVoiceRawStream();
+            AudioInputStream inputStream = this.createAudioInputStream(inputRawByte);
+            File file = new File("vad" + this.audioFormat.getSampleRate() + "TestInput.wav");
+            AudioSystem.write(inputStream, AudioFileFormat.Type.WAVE, file);
+
+//            double[] stream = AudioStreamFormatter.convertStreamToDoubleArray(
+//                    inputRawByte,
+//                    16,
+//                    false
+//            );
+            request = new QuestionAudioStream(
+                    inputRawByte,
+                    inputStream.getFormat().getSampleRate(),
+                    inputStream.getFormat().getSampleSizeInBits(),
+                    1,
+                    false,
+                    true
+            );
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            fail("createRawVoiceStream() failed");
+        }
+        return request;
+    }
+
     public RequestAudioStreamData createVoiceColorRequest() {
         RequestAudioStreamData request = null;
         try {
             byte[] inputRawByte = this.createVoiceRawStream();
             AudioInputStream inputStream = this.createAudioInputStream(inputRawByte);
-            File file = new File("vad"+ this.audioFormat.getSampleRate() +"TestInput.wav");
+            File file = new File("vad" + this.audioFormat.getSampleRate() + "TestInput.wav");
             AudioSystem.write(inputStream, AudioFileFormat.Type.WAVE, file);
 
             double[] stream = AudioStreamFormatter.convertStreamToDoubleArray(
@@ -79,7 +105,6 @@ public class TestStreamDataFactory{
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         int bufferLengthInFrames = line.getBufferSize() / 8;
         buildByteOutputStream(out, line, bufferLengthInFrames * this.audioFormat.getFrameSize());
-
 
         line.stop();
         line.close();
