@@ -4,7 +4,7 @@ import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-public class ResponseText {
+public class Answer {
     String result;
     boolean isResponse;
     boolean isFinal;
