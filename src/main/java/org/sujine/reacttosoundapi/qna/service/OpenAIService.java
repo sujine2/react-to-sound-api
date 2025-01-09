@@ -1,11 +1,6 @@
 package org.sujine.reacttosoundapi.qna.service;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.StringReader;
-import java.util.Properties;
-
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -25,24 +20,26 @@ public class OpenAIService {
     private String apiKey;
     @Value("${persona.info}")
     private String personaInfo;
+    private final HttpClient client;
+    private final JsonObjectBuilder jsonBuilder;
+    private final JsonArrayBuilder messagesBuilder;
+
+    public OpenAIService() {
+        this.client = HttpClient.newHttpClient();
+        this.jsonBuilder = Json.createObjectBuilder().add("model", "gpt-3.5-turbo");
+        this.jsonBuilder.add("temperature", 0.7);
+        this.jsonBuilder.add("top_p", 1);
+        this.jsonBuilder.add("frequency_penalty", 0);
+        this.jsonBuilder.add("presence_penalty", 0);
+        System.out.println(this.personaInfo);
+        this.messagesBuilder = Json.createArrayBuilder();
+        this.messagesBuilder.add(Json.createObjectBuilder().add("role", "system").add("content", "너는 또 다른 나야"));
+        this.messagesBuilder.add(Json.createObjectBuilder().add("role", "system").add("content", this.personaInfo));
+    }
 
     public String askGpt(String question) throws Exception {
-        HttpClient client = HttpClient.newHttpClient();
-
-        JsonObjectBuilder jsonBuilder = Json.createObjectBuilder()
-                .add("model", "gpt-3.5-turbo");
-
-        System.out.println(this.personaInfo);
-        JsonArrayBuilder messagesBuilder = Json.createArrayBuilder();
-        messagesBuilder.add(Json.createObjectBuilder().add("role", "system").add("content", "너는 또 다른 나야"));
-        messagesBuilder.add(Json.createObjectBuilder().add("role", "system").add("content", this.personaInfo));
-        messagesBuilder.add(Json.createObjectBuilder().add("role", "user").add("content", question));
-
-        jsonBuilder.add("messages", messagesBuilder.build());
-        jsonBuilder.add("temperature", 0.7);
-        jsonBuilder.add("top_p", 1);
-        jsonBuilder.add("frequency_penalty", 0);
-        jsonBuilder.add("presence_penalty", 0);
+        this.messagesBuilder.add(Json.createObjectBuilder().add("role", "user").add("content", question));
+        this.jsonBuilder.add("messages", messagesBuilder.build());
 
         JsonObject jsonRequest = jsonBuilder.build();
         HttpRequest request = HttpRequest.newBuilder()
@@ -52,9 +49,7 @@ public class OpenAIService {
                 .POST(HttpRequest.BodyPublishers.ofString(jsonRequest.toString()))
                 .build();
 
-
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
         try (JsonReader jsonReader = Json.createReader(new StringReader(response.body()))) {
             JsonObject responseBody = jsonReader.readObject();
             return responseBody.getJsonArray("choices")

@@ -6,11 +6,11 @@ import com.google.cloud.speech.v1.StreamingRecognitionResult;
 import com.google.cloud.speech.v1.StreamingRecognizeResponse;
 import org.sujine.reacttosoundapi.qna.dto.ResponseText;
 import org.sujine.reacttosoundapi.qna.service.OpenAIService;
-import org.sujine.reacttosoundapi.qna.service.STTService;
+import org.sujine.reacttosoundapi.qna.service.STTResponseObserver;
 
-public class TestSTTService extends STTService{
-    public TestSTTService(int sampleRate, ResponseObserver<StreamingRecognizeResponse> responseObserver) throws Exception{
-        super(sampleRate, responseObserver);
+public class TestSTTResponseObserver extends STTResponseObserver{
+    public TestSTTResponseObserver(OpenAIService openAIService) throws Exception{
+        super(openAIService);
     }
     public static class ResponseObserverNotSend implements ResponseObserver<StreamingRecognizeResponse> {
         private final OpenAIService openAIService = new OpenAIService();
