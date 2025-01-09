@@ -2,10 +2,12 @@ package org.sujine.reacttosoundapi.qna.controller;
 
 import jakarta.websocket.*;
 import jakarta.websocket.server.ServerEndpoint;
+import org.springframework.beans.factory.ObjectProvider;
 import org.sujine.reacttosoundapi.qna.controller.formatter.RequestAudioStreamJSONDecoder;
 import org.sujine.reacttosoundapi.qna.controller.formatter.ResponseAudioTextEncoder;
-import org.sujine.reacttosoundapi.qna.dto.RequestAudioStreamData;
-import org.sujine.reacttosoundapi.qna.service.STTService;
+import org.sujine.reacttosoundapi.qna.dto.QuestionAudioStream;
+import org.sujine.reacttosoundapi.qna.service.STTResponseObserver;
+import org.sujine.reacttosoundapi.qna.service.STTStreamingService;
 
 import java.io.IOException;
 import java.util.Set;
@@ -20,29 +22,35 @@ import java.util.Map;
 
 public class WebSocketEndpoint {
     private static Set<Session> sessions = new CopyOnWriteArraySet<>();
-    private static Map<Session, STTService> sessionServiceMap = new ConcurrentHashMap<>();
+    private static Map<Session, STTStreamingService> sessionServiceMap = new ConcurrentHashMap<>();
+    private final ObjectProvider<STTResponseObserver> responseObserverProvider;
+    private final ObjectProvider<STTStreamingService> streamingServiceProvider;
 
+    public WebSocketEndpoint(ObjectProvider<STTResponseObserver> responseObserverProvider, ObjectProvider<STTStreamingService> streamingServiceProvider) {
+        this.responseObserverProvider = responseObserverProvider;
+        this.streamingServiceProvider = streamingServiceProvider;
+    }
 
     @OnOpen
     public void onOpen(Session session) throws IOException {
         sessions.add(session);
         session.setMaxTextMessageBufferSize(1024 * 1024); // 1MB
         session.setMaxBinaryMessageBufferSize(1024 * 1024); // 1MB
-        System.out.println("Client " + session.getId() + " opened");
-        session.getBasicRemote().sendText("welcome ");
+//        System.out.println("Client " + session.getId() + " opened");
+        session.getBasicRemote().sendText("start");
     }
 
     @OnMessage
-    public void onMessage(Session session, RequestAudioStreamData message) throws Exception {
-        STTService speechService = sessionServiceMap.get(session);
+    public void onMessage(Session session, QuestionAudioStream message) throws Exception {
+        STTStreamingService speechService = sessionServiceMap.get(session);
         if (speechService == null) {
-            STTService.STTResponseObserver responseObserver = new STTService.STTResponseObserver(session);
-            STTService speechToTextService = new STTService((int)message.getSampleRate(), responseObserver);
+            STTResponseObserver responseObserver = this.responseObserverProvider.getObject();
+            responseObserver.setSession(session);
+            STTStreamingService STTService = this.streamingServiceProvider.getObject(responseObserver);
+            STTService.initialize((int)message.getSampleRate());
 
-//            speechToTextService.initialize((int)message.getSampleRate(), responseObserver);
-
-            sessionServiceMap.put(session, speechToTextService);
-            speechToTextService.sendAudioData(message.getRawStream(), message.isFinal());
+            sessionServiceMap.put(session, STTService);
+            STTService.sendAudioData(message.getRawStream(), message.isFinal());
         } else {
             speechService.sendAudioData(message.getRawStream(), message.isFinal());
         }
