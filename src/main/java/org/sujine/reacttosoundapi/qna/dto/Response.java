@@ -4,9 +4,9 @@ import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-public class Answer {
+public class Response {
     String result;
-    boolean isResponse;
+    boolean isAnswer;
     boolean isFinal;
 
     @Override

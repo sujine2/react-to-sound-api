@@ -11,18 +11,19 @@ import jakarta.json.JsonArrayBuilder;
 import jakarta.json.JsonReader;
 import jakarta.json.JsonObject;
 import jakarta.json.JsonObjectBuilder;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
+@Getter
 public class OpenAIService {
     @Value("${openai.api.key}")
     private String apiKey;
     @Value("${persona.info}")
-    private String personaInfo;
+    public String personaInfo;
     private final HttpClient client;
     private final JsonObjectBuilder jsonBuilder;
-    private final JsonArrayBuilder messagesBuilder;
 
     public OpenAIService() {
         this.client = HttpClient.newHttpClient();
@@ -31,14 +32,13 @@ public class OpenAIService {
         this.jsonBuilder.add("top_p", 1);
         this.jsonBuilder.add("frequency_penalty", 0);
         this.jsonBuilder.add("presence_penalty", 0);
-        System.out.println(this.personaInfo);
-        this.messagesBuilder = Json.createArrayBuilder();
-        this.messagesBuilder.add(Json.createObjectBuilder().add("role", "system").add("content", "너는 또 다른 나야"));
-        this.messagesBuilder.add(Json.createObjectBuilder().add("role", "system").add("content", this.personaInfo));
     }
 
     public String askGpt(String question) throws Exception {
-        this.messagesBuilder.add(Json.createObjectBuilder().add("role", "user").add("content", question));
+        JsonArrayBuilder messagesBuilder = Json.createArrayBuilder();
+        messagesBuilder.add(Json.createObjectBuilder().add("role", "system").add("content", "너는 또 다른 나야"));
+        messagesBuilder.add(Json.createObjectBuilder().add("role", "system").add("content", this.personaInfo));
+        messagesBuilder.add(Json.createObjectBuilder().add("role", "user").add("content", question));
         this.jsonBuilder.add("messages", messagesBuilder.build());
 
         JsonObject jsonRequest = jsonBuilder.build();
