@@ -3,14 +3,13 @@ package org.sujine.reacttosoundapi.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
-import org.springframework.web.socket.client.WebSocketClient;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 import org.sujine.reacttosoundapi.qna.dto.QuestionAudioStream;
 
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
-public class TestWebSocketClient extends TextWebSocketHandler {
+public class TestWebSocketClientHandler extends TextWebSocketHandler {
     public static CompletableFuture<String> messageFuture = new CompletableFuture<>();
     private final ObjectMapper objectMapper = new ObjectMapper();
     private WebSocketSession session;
@@ -23,6 +22,7 @@ public class TestWebSocketClient extends TextWebSocketHandler {
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
+        System.out.println("Client received:" + message.getPayload());
         messageFuture.complete(message.getPayload());
     }
 
@@ -32,8 +32,8 @@ public class TestWebSocketClient extends TextWebSocketHandler {
     }
 
     public void sendAudioStream(QuestionAudioStream message) throws Exception {
-        if (session != null && session.isOpen()) {
-            session.sendMessage(new TextMessage(objectMapper.writeValueAsString(message)));
+        if (this.session != null && this.session.isOpen()) {
+            this.session.sendMessage(new TextMessage(this.objectMapper.writeValueAsString(message)));
         } else {
             throw new IOException("WebSocket session is not open.");
         }
