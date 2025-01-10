@@ -5,16 +5,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
-import org.springframework.web.socket.handler.AbstractWebSocketHandler;
 import org.springframework.web.socket.WebSocketSession;
 import org.sujine.reacttosoundapi.qna.dto.QuestionAudioStream;
 import org.sujine.reacttosoundapi.qna.service.OpenAIService;
 import org.sujine.reacttosoundapi.utils.StreamDataFactory;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
