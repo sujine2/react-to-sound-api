@@ -1,4 +1,4 @@
-package org.sujine.reacttosoundapi.service;
+package org.sujine.reacttosoundapi.unit.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

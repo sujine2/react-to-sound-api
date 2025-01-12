@@ -1,4 +1,4 @@
-package org.sujine.reacttosoundapi.service;
+package org.sujine.reacttosoundapi.unit.service;
 
 import com.google.api.gax.rpc.StreamController;
 import com.google.cloud.speech.v1.StreamingRecognitionResult;

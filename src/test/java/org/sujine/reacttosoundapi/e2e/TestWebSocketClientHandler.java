@@ -1,10 +1,11 @@
-package org.sujine.reacttosoundapi.controller;
+package org.sujine.reacttosoundapi.e2e;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 import org.sujine.reacttosoundapi.qna.dto.QuestionAudioStream;
+import org.sujine.reacttosoundapi.qna.dto.Response;
 
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
@@ -22,8 +23,9 @@ public class TestWebSocketClientHandler extends TextWebSocketHandler {
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-        System.out.println("Client received:" + message.getPayload());
-        messageFuture.complete(message.getPayload());
+        String payload = message.getPayload();
+        System.out.println("Received Response: " + payload);
+        messageFuture.complete(payload);
     }
 
     @Override

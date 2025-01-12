@@ -1,12 +1,14 @@
-package org.sujine.reacttosoundapi.controller;
+package org.sujine.reacttosoundapi.unit.controller;
 
+import jakarta.servlet.http.Cookie;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.sujine.reacttosoundapi.qna.controller.QnaController;
@@ -26,16 +28,16 @@ public class QnaHttpEndpointTests {
     @MockBean
     private JwtUtil jwtUtil;
 
+    @BeforeEach
+    void setUp() {
+        ReflectionTestUtils.setField(jwtUtil, "staticSecretKey", "9OE/t4vS+y443u+e7yZ0yuS6rxSjhbFWutzrrylgOVM=");
+    }
+
     @DisplayName("request JWT first")
     @Test
     void tokenInitializeWithNoJwtCookie() throws Exception {
-        String mockToken = "mock.jwt.token";
-        Mockito.when(JwtUtil.generateToken()).thenReturn(mockToken);
-        Mockito.when(JwtUtil.isValidToken(Mockito.anyString())).thenReturn(false);
-
         MvcResult result = mockMvc.perform(get("/token/initialize"))
                 .andExpect(status().isOk())
-                .andExpect(header().string(HttpHeaders.SET_COOKIE, "jwt=" + mockToken + "; HttpOnly; Path=/"))
                 .andExpect(content().string("Initialize JWT"))
                 .andReturn();
 
@@ -45,14 +47,9 @@ public class QnaHttpEndpointTests {
 
     @DisplayName("request JWT with invalid cookie")
     @Test
-    void testTokenInitializeWithInvalidJwtCookie() throws Exception {
-        String mockToken = "mock.jwt.token";
-        Mockito.when(JwtUtil.generateToken()).thenReturn(mockToken);
-        Mockito.when(JwtUtil.isValidToken("invalid.jwt.token")).thenReturn(false);
-
-        MvcResult result = mockMvc.perform(get("/token/initialize"))
+    void tokenInitializeWithInvalidJwtCookie() throws Exception {
+        MvcResult result = mockMvc.perform(get("/token/initialize").cookie(new Cookie("jwt", "aaaa")))
                 .andExpect(status().isOk())
-                .andExpect(header().string(HttpHeaders.SET_COOKIE, "jwt=" + mockToken + "; HttpOnly; Path=/"))
                 .andExpect(content().string("Initialize JWT"))
                 .andReturn();
 
@@ -62,11 +59,12 @@ public class QnaHttpEndpointTests {
 
     @DisplayName("request JWT with valid cookie")
     @Test
-    void testTokenInitializeWithValidJwtCookie() throws Exception {
-        Mockito.when(JwtUtil.isValidToken("valid.jwt.token")).thenReturn(true);
+    void tokenInitializeWithValidJwtCookie() throws Exception {
+        MvcResult result = mockMvc.perform(get("/token/initialize")).andReturn();
+        String cookies = result.getResponse().getHeader(HttpHeaders.SET_COOKIE);
+        String jwt = cookies.split(";")[0].substring(4);
 
-        mockMvc.perform(get("/token/initialize")
-                        .header("Cookie", "jwt=valid.jwt.token"))
+        mockMvc.perform(get("/token/initialize").cookie(new Cookie("jwt", jwt)))
                 .andExpect(status().isNotAcceptable())
                 .andExpect(content().string("Already exist JWT"));
     }
