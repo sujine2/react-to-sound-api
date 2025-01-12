@@ -9,21 +9,24 @@ import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
+import org.sujine.reacttosoundapi.qna.domain.Qna;
 import org.sujine.reacttosoundapi.qna.dto.Response;
+import org.sujine.reacttosoundapi.qna.repository.QnaRepository;
 
 @Service
 @Scope("prototype")
 @Setter
 public class STTResponseObserver implements ResponseObserver<StreamingRecognizeResponse>{
     private WebSocketSession session;
-    protected final OpenAIService openAIService;
+    protected final QnaService qnaService;
     protected static final StringBuilder finalTranscript = new StringBuilder();
 
     @Autowired
-    public STTResponseObserver(OpenAIService openAIService) {
-        this.openAIService = openAIService;
+    public STTResponseObserver(QnaService qnaService) {
+        this.qnaService = qnaService;
     }
 
     @Override
@@ -31,6 +34,7 @@ public class STTResponseObserver implements ResponseObserver<StreamingRecognizeR
         System.out.println("Streaming started.");
     }
 
+    @Transactional
     @Override
     public void onResponse(StreamingRecognizeResponse response) {
         try {
@@ -40,17 +44,19 @@ public class STTResponseObserver implements ResponseObserver<StreamingRecognizeR
                 String transcript = result.getAlternativesList().get(0).getTranscript();
 
                 if (result.getIsFinal()) {
-                    // Append final transcript
-                    this.finalTranscript.append(transcript);
-
-                    // Send question to client
+                    finalTranscript.append(transcript);
+                    // send final question
                     sendMessage(session, new Response(transcript, false, true));
+                    // call OpenAI API
+                    String answer = this.qnaService.requestOpenAI(transcript);
+                    // System.out.println(answer);
+                    // save QnA
+                    this.qnaService.saveQna(transcript, answer, (String) session.getAttributes().get("userId"));
 
-                    // Generate and send answer using OpenAI
-                    String answer = this.openAIService.askGpt(transcript);
+                    // send answer
                     sendMessage(session, new Response(answer, true, false));
                 } else {
-                    // Send intermediate transcript
+                    // send intermediate transcript
                     sendMessage(session, new Response(transcript, false, false));
                 }
             }
