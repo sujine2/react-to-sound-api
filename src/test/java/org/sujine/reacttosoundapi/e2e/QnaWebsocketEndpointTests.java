@@ -3,12 +3,15 @@ package org.sujine.reacttosoundapi.controller;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.WebSocketSession;
+import org.sujine.reacttosoundapi.qna.controller.QnaWebsocketHandler;
 import org.sujine.reacttosoundapi.qna.dto.QuestionAudioStream;
-import org.sujine.reacttosoundapi.qna.service.OpenAIService;
+import org.sujine.reacttosoundapi.qna.repository.QnaRepository;
 import org.sujine.reacttosoundapi.utils.StreamDataFactory;
 
 import java.util.ArrayList;
@@ -17,12 +20,13 @@ import java.util.concurrent.ExecutionException;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
+// include openAI API call
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@AutoConfigureMockMvc
-public class STTWebsocketEndpointTests {
+public class QnaWebsocketEndpointTests {
+    @MockBean
+    private QnaRepository qnaRepository;
 
     @Autowired
-    private OpenAIService openAIService;
     private static final List<WebSocketSession> webSocketSessions = new ArrayList<>();
     private static final List<TestWebSocketClientHandler> handlers = new ArrayList<>();
     private static final String WS_URI = "ws://localhost:%d/speechToText";
@@ -59,12 +63,6 @@ public class STTWebsocketEndpointTests {
             }
         }
         webSocketSessions.clear();
-    }
-
-    @Test
-    void testOpenAIObject() {
-        System.out.println("Default Charset: " + java.nio.charset.Charset.defaultCharset());
-        System.out.println("info: " + openAIService.getPersonaInfo());
     }
 
     @DisplayName("A client sends a request to the STT endpoint.")

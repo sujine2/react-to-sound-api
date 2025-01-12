@@ -7,15 +7,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.sujine.reacttosoundapi.qna.dto.Response;
-import org.sujine.reacttosoundapi.qna.service.OpenAIService;
+import org.sujine.reacttosoundapi.qna.service.QnaService;
 import org.sujine.reacttosoundapi.qna.service.STTResponseObserver;
 
 @Service
 @Profile("test")
 public class TestSTTResponseObserver extends STTResponseObserver{
     @Autowired
-    public TestSTTResponseObserver(OpenAIService openAIService) throws Exception {
-        super(openAIService);
+    public TestSTTResponseObserver(QnaService qnaService) throws Exception {
+        super(qnaService);
     }
 
     @Override
@@ -32,7 +32,7 @@ public class TestSTTResponseObserver extends STTResponseObserver{
 
                 if (result.getIsFinal()) {
                     this.finalTranscript.append(transcript);
-                    String answer = this.openAIService.askGpt(transcript);
+                    String answer = this.qnaService.requestOpenAI(transcript);
                     System.out.println("answer:" + new Response(answer, true, false));
                 } else {
                     System.out.println(new Response(transcript, true,false).toString());

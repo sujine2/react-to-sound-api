@@ -8,7 +8,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.ActiveProfiles;
-import org.sujine.reacttosoundapi.qna.service.OpenAIService;
+import org.sujine.reacttosoundapi.qna.repository.QnaRepository;
+import org.sujine.reacttosoundapi.qna.service.QnaService;
 import org.sujine.reacttosoundapi.qna.service.STTStreamingService;
 import org.sujine.reacttosoundapi.utils.StreamDataFactory;
 import org.sujine.reacttosoundapi.qna.dto.QuestionAudioStream;
@@ -19,8 +20,11 @@ import static org.junit.jupiter.api.Assertions.fail;
 @ExtendWith(MockitoExtension.class)
 @ActiveProfiles("test")
 public class SpeechToServiceTests {
+
     @Mock
-    private OpenAIService openAIService;
+    private QnaRepository qnaRepository;
+    @Mock
+    private QnaService qnaService;
 
     @InjectMocks
     private TestSTTResponseObserver sttResponseObserver;
