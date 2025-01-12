@@ -17,14 +17,14 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
-public class STTWebSocketHandler extends TextWebSocketHandler {
+public class QnaWebsocketHandler extends TextWebSocketHandler {
 
     private final ObjectProvider<STTResponseObserver> responseObserverProvider;
     private final ObjectProvider<STTStreamingService> streamingServiceProvider;
     private  final ObjectMapper objectMapper = new ObjectMapper();
     private final Map<WebSocketSession, STTStreamingService> sessionServiceMap = new ConcurrentHashMap<>();
 
-    public STTWebSocketHandler(ObjectProvider<STTResponseObserver> responseObserverProvider,
+    public QnaWebsocketHandler(ObjectProvider<STTResponseObserver> responseObserverProvider,
                                ObjectProvider<STTStreamingService> streamingServiceProvider) {
         this.responseObserverProvider = responseObserverProvider;
         this.streamingServiceProvider = streamingServiceProvider;
@@ -32,6 +32,12 @@ public class STTWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws IOException {
+        String userId = (String) session.getAttributes().get("userId");
+        if (userId == null) {
+            session.close();
+            return;
+        }
+
         session.setTextMessageSizeLimit(1024 * 1024); // 1MB
         session.setBinaryMessageSizeLimit(1024 * 1024); // 1MB
         session.sendMessage(new TextMessage("start"));
@@ -40,7 +46,10 @@ public class STTWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void handleMessage(WebSocketSession session, WebSocketMessage<?> message) throws Exception {
-        QuestionAudioStream audioStream = objectMapper.readValue((String)message.getPayload(), QuestionAudioStream.class);
+        QuestionAudioStream audioStream = objectMapper.readValue(
+                (String)message.getPayload(),
+                QuestionAudioStream.class
+        );
 
         STTStreamingService sttService = sessionServiceMap.get(session);
         if (sttService == null) {
@@ -51,7 +60,6 @@ public class STTWebSocketHandler extends TextWebSocketHandler {
 
             sessionServiceMap.put(session, sttService);
         }
-
         sttService.sendAudioData(audioStream.getRawStream(), audioStream.isFinal());
     }
 
