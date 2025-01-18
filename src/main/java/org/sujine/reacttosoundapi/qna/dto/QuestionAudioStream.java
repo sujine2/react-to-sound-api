@@ -14,5 +14,5 @@ public class QuestionAudioStream {
     int sampleSize;
     int channel;
     boolean bigEndian;
-    boolean isFinal;
+    boolean last;
 }

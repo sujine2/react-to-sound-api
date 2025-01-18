@@ -21,7 +21,7 @@ public class QnaWebsocketHandler extends TextWebSocketHandler {
 
     private final ObjectProvider<STTResponseObserver> responseObserverProvider;
     private final ObjectProvider<STTStreamingService> streamingServiceProvider;
-    private  final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
     private final Map<WebSocketSession, STTStreamingService> sessionServiceMap = new ConcurrentHashMap<>();
 
     public QnaWebsocketHandler(ObjectProvider<STTResponseObserver> responseObserverProvider,
@@ -60,7 +60,7 @@ public class QnaWebsocketHandler extends TextWebSocketHandler {
 
             sessionServiceMap.put(session, sttService);
         }
-        sttService.sendAudioData(audioStream.getRawStream(), audioStream.isFinal());
+        sttService.sendAudioData(audioStream.getRawStream(), audioStream.isLast());
     }
 
     @Override
