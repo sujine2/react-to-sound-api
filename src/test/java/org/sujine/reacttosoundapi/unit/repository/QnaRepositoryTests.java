@@ -25,7 +25,7 @@ public class QnaRepositoryTests {
     @Autowired
     private QnaRepository qnaRepository;
 
-    private String userId = "test";
+    private final static String userId = "test";
 
     @DisplayName("check find by user id")
     @Test
