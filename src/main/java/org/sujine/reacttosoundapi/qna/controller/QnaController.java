@@ -3,10 +3,11 @@ package org.sujine.reacttosoundapi.qna.controller;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.sujine.reacttosoundapi.qna.domain.ExampleQuestion;
 import org.sujine.reacttosoundapi.qna.domain.Qna;
+import org.sujine.reacttosoundapi.qna.dto.QuestionRequest;
+import org.sujine.reacttosoundapi.qna.dto.Response;
 import org.sujine.reacttosoundapi.qna.service.QnaService;
 import org.sujine.reacttosoundapi.qna.service.utils.JwtUtil;
 
@@ -32,8 +33,19 @@ public class QnaController {
         } else return new ResponseEntity<>("Already exist JWT", new HttpHeaders(), HttpStatus.NOT_ACCEPTABLE);
     }
 
+    @PostMapping("/ask")
+    public ResponseEntity<Response> ask(@CookieValue(value = "jwt", required = false) String jwt, @RequestBody QuestionRequest request)  throws Exception {
+        Response response = qnaService.getAnswer(jwt, request.getQuestion());
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/history")
     public List<Qna> history(@CookieValue(value = "jwt", required = false) String jwt) {
         return qnaService.getHistories(jwt);
+    }
+
+    @GetMapping("/ex/questions")
+    public List<ExampleQuestion> exampleQuestions() {
+        return qnaService.getExampleQuestions();
     }
 }
