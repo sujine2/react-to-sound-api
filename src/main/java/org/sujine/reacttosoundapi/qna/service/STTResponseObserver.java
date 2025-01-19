@@ -9,12 +9,10 @@ import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
-import org.sujine.reacttosoundapi.qna.domain.Qna;
 import org.sujine.reacttosoundapi.qna.dto.Response;
-import org.sujine.reacttosoundapi.qna.repository.QnaRepository;
+
 
 @Service
 @Scope("prototype")
@@ -34,7 +32,6 @@ public class STTResponseObserver implements ResponseObserver<StreamingRecognizeR
         System.out.println("Streaming started.");
     }
 
-    @Transactional
     @Override
     public void onResponse(StreamingRecognizeResponse response) {
         try {
@@ -47,14 +44,6 @@ public class STTResponseObserver implements ResponseObserver<StreamingRecognizeR
                     finalTranscript.append(transcript);
                     // send final question
                     sendMessage(session, new Response(transcript, false, true));
-                    // call OpenAI API
-                    String answer = this.qnaService.requestOpenAI(transcript);
-                    // System.out.println(answer);
-                    // save QnA
-                    this.qnaService.saveQna(transcript, answer, (String) session.getAttributes().get("userId"));
-
-                    // send answer
-                    sendMessage(session, new Response(answer, true, false));
                 } else {
                     // send intermediate transcript
                     sendMessage(session, new Response(transcript, false, false));
@@ -92,6 +81,7 @@ public class STTResponseObserver implements ResponseObserver<StreamingRecognizeR
             e.printStackTrace();
         }
     }
+
 }
 
 
