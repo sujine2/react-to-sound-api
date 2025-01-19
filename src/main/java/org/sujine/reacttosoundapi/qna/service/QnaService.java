@@ -6,6 +6,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import jakarta.json.Json;
 import jakarta.json.JsonArrayBuilder;
@@ -15,7 +16,10 @@ import jakarta.json.JsonObjectBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.sujine.reacttosoundapi.qna.domain.ExampleQuestion;
 import org.sujine.reacttosoundapi.qna.domain.Qna;
+import org.sujine.reacttosoundapi.qna.dto.Response;
 import org.sujine.reacttosoundapi.qna.repository.QnaRepository;
 
 @Service
@@ -31,6 +35,37 @@ public class QnaService {
     public QnaService(QnaRepository qnaRepository) {
         this.client = HttpClient.newHttpClient();
         this.qnaRepository = qnaRepository;
+    }
+
+    @Transactional
+    public Response getAnswer(String jwt, String question) throws Exception {
+        // call OpenAI API
+        String answer = this.requestOpenAI(question);
+        // save answer
+        this.saveQna(question, answer, jwt);
+        // send answer
+        return new Response(answer, true, false);
+    }
+
+    @Transactional
+    public Qna saveQna(String question, String answer, String userId) {
+        return this.qnaRepository.save(new Qna(question, answer, userId));
+    }
+
+    @Transactional
+    public List<Qna> getHistories(String userId) {
+        return this.qnaRepository.findByUserId(userId);
+    }
+
+    @Transactional
+    public List<ExampleQuestion> getExampleQuestions() {
+        List<Object[]> results = this.qnaRepository.findRandomQuestions(2);
+        return results.stream()
+                .map(result -> new ExampleQuestion(
+                        ((Number) result[0]).longValue(),
+                        (String) result[1]
+                )) // Object[] → DTO
+                .collect(Collectors.toList());
     }
 
     public String requestOpenAI(String question) throws Exception {
@@ -68,14 +103,6 @@ public class QnaService {
             throw new RuntimeException("Unexpected response status: " + response.statusCode()
                     + " with body: " + response.body());
         }
-    }
-
-    public Qna saveQna(String question, String answer, String userId) {
-        return this.qnaRepository.save(new Qna(question, answer, userId));
-    }
-
-    public List<Qna> getHistories(String userId) {
-        return this.qnaRepository.findByUserId(userId);
     }
 
 }
