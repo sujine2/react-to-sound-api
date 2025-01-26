@@ -71,7 +71,7 @@ public class QnaWebsocketHandler extends TextWebSocketHandler {
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws IOException {
         STTStreamingService sttService = sessionServiceMap.get(session);
-        sttService.closeStreaming();
+        if (sttService != null) {sttService.closeStreaming();}
         sessionServiceMap.remove(session);
         System.out.println("Connection closed: " + session.getId());
     }

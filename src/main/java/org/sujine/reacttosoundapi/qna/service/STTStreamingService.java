@@ -4,6 +4,7 @@ import com.google.api.gax.rpc.ClientStream;
 import com.google.api.gax.rpc.ResponseObserver;
 import com.google.cloud.speech.v1.*;
 import com.google.protobuf.ByteString;
+import jakarta.annotation.PreDestroy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
@@ -74,23 +75,24 @@ public class STTStreamingService {
         }
 
         if (this.responseObserver != null) {
-            this.responseObserver.onComplete(); // 🚨 강제로 닫는 경우
-        }
-
-        if (this.speechClient != null) {
-            this.speechClient.shutdown();
+            this.responseObserver.onComplete();
         }
     }
 
     private void restartStreaming() throws Exception {
         System.out.println("🔄 Restarting gRPC streaming...");
 
-        SpeechClient speechClient = SpeechClient.create();
         this.requestObserver = speechClient.streamingRecognizeCallable().splitCall(responseObserver);
         this.requestObserver.send(this.initialRequest);
 
         System.out.println("✅ New requestObserver created. Streaming restarted.");
     }
 
+    @PreDestroy
+    public void shutdown() {
+        if (this.speechClient != null) {
+            this.speechClient.shutdown();
+        }
+    }
 
 }
