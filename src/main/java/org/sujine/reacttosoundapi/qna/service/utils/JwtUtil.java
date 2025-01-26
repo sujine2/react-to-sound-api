@@ -15,15 +15,13 @@ import java.util.UUID;
 
 @Component
 public class JwtUtil {
-    @Value("${jwt.secret.key}")
-    private String secretKey;
+    private static String secretKey;
     private static final long expirationTime = 1800000; // 30 minutes
-    private static String staticSecretKey;
 
-    @PostConstruct
-    public void init() {
-        staticSecretKey = secretKey;
+    public JwtUtil(@Value("${jwt.secret.key}") String secretKey) {
+        JwtUtil.secretKey = secretKey;
     }
+
 
     public static String generateToken() {
         String uniqueId = UUID.randomUUID().toString();
@@ -48,7 +46,7 @@ public class JwtUtil {
     }
 
     public static Key getSigningKey() {
-        byte[] keyBytes = Base64.getDecoder().decode(staticSecretKey);
+        byte[] keyBytes = Base64.getDecoder().decode(secretKey);
         return new SecretKeySpec(keyBytes, SignatureAlgorithm.HS256.getJcaName());
     }
 }
