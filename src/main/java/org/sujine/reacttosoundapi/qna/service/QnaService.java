@@ -47,17 +47,16 @@ public class QnaService {
         return new Response(answer, true, false);
     }
 
-    @Transactional
-    public Qna saveQna(String question, String answer, String userId) {
-        return this.qnaRepository.save(new Qna(question, answer, userId));
-    }
-
-    @Transactional
+    @Transactional(readOnly = true)
     public List<Qna> getHistories(String userId) {
         return this.qnaRepository.findByUserId(userId);
     }
 
-    @Transactional
+    public Qna saveQna(String question, String answer, String userId) {
+        return this.qnaRepository.save(new Qna(question, answer, userId));
+    }
+
+    @Transactional(readOnly = true)
     public List<ExampleQuestion> getExampleQuestions() {
         List<Object[]> results = this.qnaRepository.findRandomQuestions(2);
         return results.stream()
