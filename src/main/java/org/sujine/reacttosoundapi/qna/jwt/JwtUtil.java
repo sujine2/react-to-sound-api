@@ -1,9 +1,7 @@
-package org.sujine.reacttosoundapi.qna.service.utils;
+package org.sujine.reacttosoundapi.qna.jwt;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import jakarta.annotation.PostConstruct;
-import lombok.experimental.UtilityClass;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +14,7 @@ import java.util.UUID;
 @Component
 public class JwtUtil {
     private static String secretKey;
-    private static final long expirationTime = 1800000; // 30 minutes
+    private static final long expirationTime = 86400000; // 1800000 30 minutes
 
     public JwtUtil(@Value("${jwt.secret.key}") String secretKey) {
         JwtUtil.secretKey = secretKey;

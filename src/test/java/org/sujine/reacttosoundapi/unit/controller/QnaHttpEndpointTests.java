@@ -13,7 +13,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.sujine.reacttosoundapi.qna.controller.QnaController;
 import org.sujine.reacttosoundapi.qna.service.QnaService;
-import org.sujine.reacttosoundapi.qna.service.utils.JwtUtil;
+import org.sujine.reacttosoundapi.qna.jwt.JwtUtil;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
