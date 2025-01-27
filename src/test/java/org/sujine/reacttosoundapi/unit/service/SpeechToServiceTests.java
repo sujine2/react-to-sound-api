@@ -44,7 +44,7 @@ public class SpeechToServiceTests {
         try {
             STTStreamingService STTService = new STTStreamingService(sttResponseObserver);
             STTService.initialize((int)request.getSampleRate());
-            STTService.sendAudioData(request.getRawStream(), request.isFinal());
+            STTService.sendAudioData(request.getRawStream(), request.isLast());
             Thread.sleep(10000);
         } catch (Exception e) {
             System.out.println(e.getMessage());

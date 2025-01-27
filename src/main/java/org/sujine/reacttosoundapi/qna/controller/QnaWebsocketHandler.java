@@ -21,7 +21,7 @@ public class QnaWebsocketHandler extends TextWebSocketHandler {
 
     private final ObjectProvider<STTResponseObserver> responseObserverProvider;
     private final ObjectProvider<STTStreamingService> streamingServiceProvider;
-    private  final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
     private final Map<WebSocketSession, STTStreamingService> sessionServiceMap = new ConcurrentHashMap<>();
 
     public QnaWebsocketHandler(ObjectProvider<STTResponseObserver> responseObserverProvider,
@@ -46,6 +46,11 @@ public class QnaWebsocketHandler extends TextWebSocketHandler {
 
     @Override
     public void handleMessage(WebSocketSession session, WebSocketMessage<?> message) throws Exception {
+        if (!session.isOpen()) {
+            System.out.println("🚨 session is closed");
+            return;
+        }
+
         QuestionAudioStream audioStream = objectMapper.readValue(
                 (String)message.getPayload(),
                 QuestionAudioStream.class
@@ -60,11 +65,13 @@ public class QnaWebsocketHandler extends TextWebSocketHandler {
 
             sessionServiceMap.put(session, sttService);
         }
-        sttService.sendAudioData(audioStream.getRawStream(), audioStream.isFinal());
+        sttService.sendAudioData(audioStream.getRawStream(), audioStream.isLast());
     }
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws IOException {
+        STTStreamingService sttService = sessionServiceMap.get(session);
+        if (sttService != null) {sttService.closeStreaming();}
         sessionServiceMap.remove(session);
         System.out.println("Connection closed: " + session.getId());
     }

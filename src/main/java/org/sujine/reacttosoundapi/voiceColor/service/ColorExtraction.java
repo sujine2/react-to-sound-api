@@ -15,7 +15,7 @@ public class ColorExtraction implements Callable<ResponseRGB[]> {
     }
 
     public ResponseRGB[] call() throws IllegalArgumentException {
-        System.out.println("Running on thread: " + Thread.currentThread().getName());
+//        System.out.println("Running on thread: " + Thread.currentThread().getName());
         VoiceStream voiceStream = new VoiceStream(
                 this.streamData.getRawStream(),
                 this.streamData.getSampleRate()
