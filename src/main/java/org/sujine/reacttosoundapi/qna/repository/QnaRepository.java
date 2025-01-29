@@ -1,9 +1,10 @@
-package org.sujine.reacttosoundapi.question.repository;
+package org.sujine.reacttosoundapi.qna.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
-import org.sujine.reacttosoundapi.question.domain.Qna;
+import org.sujine.reacttosoundapi.qna.domain.ExampleQuestion;
+import org.sujine.reacttosoundapi.qna.domain.Qna;
 
 import java.util.List;
 

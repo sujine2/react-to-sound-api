@@ -1,15 +1,16 @@
-package org.sujine.reacttosoundapi.config;
+package org.sujine.reacttosoundapi.qna.controller;
 
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.sujine.reacttosoundapi.qna.jwt.JwtFilter;
+import org.springframework.modulith.ApplicationModule;
+import org.sujine.reacttosoundapi.jwt.JwtFilter;
 
 @Configuration
-public class FilterConfig {
+class FilterConfig {
 
     @Bean
-    public FilterRegistrationBean<JwtFilter> jwtFilter() {
+    FilterRegistrationBean<JwtFilter> jwtFilter() {
         FilterRegistrationBean<JwtFilter> registrationBean = new FilterRegistrationBean<>();
         registrationBean.setFilter(new JwtFilter());
         registrationBean.addUrlPatterns("/aks", "/history");
