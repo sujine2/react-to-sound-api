@@ -4,8 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
-import org.sujine.reacttosoundapi.qna.dto.QuestionAudioStream;
-import org.sujine.reacttosoundapi.qna.dto.Response;
+import org.sujine.reacttosoundapi.stt.dto.SpeechAudioStream;
 
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
@@ -33,7 +32,7 @@ public class TestWebSocketClientHandler extends TextWebSocketHandler {
         messageFuture.completeExceptionally(exception);
     }
 
-    public void sendAudioStream(QuestionAudioStream message) throws Exception {
+    public void sendAudioStream(SpeechAudioStream message) throws Exception {
         if (this.session != null && this.session.isOpen()) {
             this.session.sendMessage(new TextMessage(this.objectMapper.writeValueAsString(message)));
         } else {

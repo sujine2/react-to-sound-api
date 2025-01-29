@@ -11,7 +11,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.socket.WebSocketHttpHeaders;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.WebSocketSession;
-import org.sujine.reacttosoundapi.qna.dto.QuestionAudioStream;
+import org.sujine.reacttosoundapi.stt.dto.SpeechAudioStream;
 import org.sujine.reacttosoundapi.qna.repository.QnaRepository;
 import org.sujine.reacttosoundapi.qna.service.QnaService;
 import org.sujine.reacttosoundapi.utils.StreamDataFactory;
@@ -28,8 +28,7 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
-// get jwt -> websocket connection -> Q&A (call openAI call) -> connection closed
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+// get jwt -> websocket connection -> Q&A (call openAI API) -> connection closed
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource(properties = {
         "spring.datasource.url=jdbc:h2:mem:testdb;MODE=MySQL",
@@ -61,7 +60,7 @@ public class QnaWebsocketEndpointTests {
     }
 
     @BeforeAll
-    void setUp(@LocalServerPort int port) throws ExecutionException, InterruptedException {
+    static void setUp(@LocalServerPort int port) throws ExecutionException, InterruptedException {
         createClientJWTs(port);
         createClientWebSocketConnections(port);
     }
@@ -81,6 +80,7 @@ public class QnaWebsocketEndpointTests {
 //        System.out.println(QnaService.personaInfo);
 //    }
 
+    @DisplayName("Try websocket connection with invalid JWT")
     @Test
     public void webSocketConnectionFailsWithInvalidJwtTest(@LocalServerPort int port) throws Exception {
         // Prepare URI and headers with an invalid JWT
@@ -116,11 +116,11 @@ public class QnaWebsocketEndpointTests {
     }
 
 
-    @DisplayName("A client sends a request to the STT endpoint.")
+    @DisplayName("A client sends a request to the STT endpoint")
     @Test
     void STTWebsocketEndpointTest(@LocalServerPort int port) {
         streamDataFactory.setAudioFormat((float) 16000, 16, false);
-        QuestionAudioStream request = streamDataFactory.createSTTRequest();
+        SpeechAudioStream request = streamDataFactory.createSTTRequest();
         try {
             handlers.get(1).sendAudioStream(request);
             // String receivedMessage = TestWebSocketClientHandler.messageFuture.get();
@@ -161,13 +161,13 @@ public class QnaWebsocketEndpointTests {
         }
     }
 
-    @DisplayName("Clients send requests to the STT endpoint.")
+    @DisplayName("Clients send requests to the STT endpoint")
     @Test
     void STTWebsocketEndpointWithClientsTest(@LocalServerPort int port) {
         try {
             for (int i = 0; i < handlers.size(); i++) {
                 streamDataFactory.setAudioFormat((float) 16000, 16, false);
-                QuestionAudioStream request = streamDataFactory.createSTTRequest();
+                SpeechAudioStream request = streamDataFactory.createSTTRequest();
                 handlers.get(i).sendAudioStream(request);
                 Thread.sleep(10000);
 
