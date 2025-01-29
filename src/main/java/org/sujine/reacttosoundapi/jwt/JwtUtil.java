@@ -14,7 +14,7 @@ import java.util.UUID;
 @Component
 public class JwtUtil {
     private static String secretKey;
-    private static final long expirationTime = 86400000; // 1800000 30 minutes
+    private static final long expirationTime = 1800000; //  30 minutes
 
     public JwtUtil(@Value("${jwt.secret.key}") String _secretKey) {
         secretKey = _secretKey;
