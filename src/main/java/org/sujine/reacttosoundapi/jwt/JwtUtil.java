@@ -1,4 +1,4 @@
-package org.sujine.reacttosoundapi.qna.jwt;
+package org.sujine.reacttosoundapi.jwt;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -16,8 +16,8 @@ public class JwtUtil {
     private static String secretKey;
     private static final long expirationTime = 86400000; // 1800000 30 minutes
 
-    public JwtUtil(@Value("${jwt.secret.key}") String secretKey) {
-        JwtUtil.secretKey = secretKey;
+    public JwtUtil(@Value("${jwt.secret.key}") String _secretKey) {
+        secretKey = _secretKey;
     }
 
 
