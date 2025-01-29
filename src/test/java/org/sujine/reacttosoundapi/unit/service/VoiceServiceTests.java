@@ -7,10 +7,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.sujine.reacttosoundapi.utils.StreamDataFactory;
-import org.sujine.reacttosoundapi.voiceColor.domain.VoiceStream;
-import org.sujine.reacttosoundapi.voiceColor.dto.RequestAudioStreamData;
-import org.sujine.reacttosoundapi.voiceColor.dto.ResponseRGB;
-import org.sujine.reacttosoundapi.voiceColor.service.VoiceColorExtractionService;
+import org.sujine.reacttosoundapi.audio.domain.VoiceStream;
+import org.sujine.reacttosoundapi.audio.dto.RequestAudioStreamData;
+import org.sujine.reacttosoundapi.audio.dto.ResponseRGB;
+import org.sujine.reacttosoundapi.audio.service.VoiceColorExtractionService;
 import org.sujine.reacttosoundapi.utils.AudioStreamFormatter;
 
 import java.io.IOException;

@@ -1,10 +1,10 @@
-package org.sujine.reacttosoundapi.qna.controller;
+package org.sujine.reacttosoundapi.stt.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.web.socket.WebSocketMessage;
-import org.sujine.reacttosoundapi.qna.dto.QuestionAudioStream;
-import org.sujine.reacttosoundapi.qna.service.STTResponseObserver;
-import org.sujine.reacttosoundapi.qna.service.STTStreamingService;
+import org.sujine.reacttosoundapi.stt.dto.QuestionAudioStream;
+import org.sujine.reacttosoundapi.stt.service.STTResponseObserver;
+import org.sujine.reacttosoundapi.stt.service.STTStreamingService;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;

@@ -1,4 +1,4 @@
-package org.sujine.reacttosoundapi.voiceColor.domain;
+package org.sujine.reacttosoundapi.audio.domain;
 
 import lombok.Getter;
 import org.apache.commons.math3.complex.Complex;
@@ -6,7 +6,7 @@ import org.apache.commons.math3.transform.DftNormalization;
 import org.apache.commons.math3.transform.FastFourierTransformer;
 import org.apache.commons.math3.transform.TransformType;
 import org.jitsi.webrtcvadwrapper.WebRTCVad;
-import org.sujine.reacttosoundapi.voiceColor.domain.utils.AudioStreamFormatter;
+import org.sujine.reacttosoundapi.audio.utils.AudioStreamFormatter;
 
 import java.util.ArrayList;
 import java.util.Arrays;

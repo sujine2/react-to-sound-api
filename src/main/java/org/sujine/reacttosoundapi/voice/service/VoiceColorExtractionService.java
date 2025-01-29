@@ -1,9 +1,9 @@
-package org.sujine.reacttosoundapi.voiceColor.service;
+package org.sujine.reacttosoundapi.audio.service;
 
 import lombok.Getter;
 import org.springframework.stereotype.Service;
-import org.sujine.reacttosoundapi.voiceColor.dto.RequestAudioStreamData;
-import org.sujine.reacttosoundapi.voiceColor.dto.ResponseRGB;
+import org.sujine.reacttosoundapi.audio.dto.RequestAudioStreamData;
+import org.sujine.reacttosoundapi.audio.dto.ResponseRGB;
 
 import javax.annotation.PreDestroy;
 import java.util.concurrent.*;

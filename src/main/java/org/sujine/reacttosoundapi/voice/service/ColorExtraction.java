@@ -1,24 +1,19 @@
-package org.sujine.reacttosoundapi.voiceColor.service;
+package org.sujine.reacttosoundapi.audio.service;
 
-import org.sujine.reacttosoundapi.voiceColor.domain.VoiceStream;
-import org.sujine.reacttosoundapi.voiceColor.dto.RequestAudioStreamData;
-import org.sujine.reacttosoundapi.voiceColor.dto.ResponseRGB;
+import org.sujine.reacttosoundapi.audio.domain.VoiceStream;
+import org.sujine.reacttosoundapi.audio.dto.RequestAudioStreamData;
+import org.sujine.reacttosoundapi.audio.dto.ResponseRGB;
 
 import java.awt.*;
 import java.util.concurrent.Callable;
 
-public class ColorExtraction implements Callable<ResponseRGB[]> {
-    private final RequestAudioStreamData streamData;
-
-    public ColorExtraction(RequestAudioStreamData streamData) {
-        this.streamData = streamData;
-    }
+record ColorExtraction(RequestAudioStreamData streamData) implements Callable<ResponseRGB[]> {
 
     public ResponseRGB[] call() throws IllegalArgumentException {
 //        System.out.println("Running on thread: " + Thread.currentThread().getName());
         VoiceStream voiceStream = new VoiceStream(
-                this.streamData.getRawStream(),
-                this.streamData.getSampleRate()
+                streamData.getRawStream(),
+                streamData.getSampleRate()
         );
         double[][] frequenciesWithMagnitude = voiceStream.extractFrequency();
 

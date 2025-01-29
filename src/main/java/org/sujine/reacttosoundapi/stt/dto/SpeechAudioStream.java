@@ -1,4 +1,4 @@
-package org.sujine.reacttosoundapi.qna.dto;
+package org.sujine.reacttosoundapi.stt.dto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,6 +13,5 @@ public class QuestionAudioStream {
     float sampleRate;
     int sampleSize;
     int channel;
-    boolean bigEndian;
     boolean last;
 }

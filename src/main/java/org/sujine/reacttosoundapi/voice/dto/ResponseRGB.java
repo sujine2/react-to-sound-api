@@ -1,4 +1,4 @@
-package org.sujine.reacttosoundapi.voiceColor.dto;
+package org.sujine.reacttosoundapi.audio.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

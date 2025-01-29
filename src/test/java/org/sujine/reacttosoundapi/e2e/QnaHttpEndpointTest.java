@@ -7,7 +7,7 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 import org.sujine.reacttosoundapi.qna.domain.Qna;
-import org.sujine.reacttosoundapi.qna.service.QnaService;
+import org.sujine.reacttosoundapi.qna.repository.QnaRepository;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -16,9 +16,9 @@ import java.sql.SQLException;
 // http api -> request oracle cloud (mysql server)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class QnaHistoryEndpointTest {
+public class QnaHtpEndpointTest {
     @Autowired
-    private QnaService qnaService;
+    private QnaRepository qnaRepository;
     @Autowired
     private DataSource dataSource;
 
@@ -27,9 +27,9 @@ public class QnaHistoryEndpointTest {
 
     @BeforeAll
     void setup() {
-        qnaService.saveQna("What is your favorite color?", "yellow.", userId);
-        qnaService.saveQna("What is Spring?", "A Java framework.", userId);
-        qnaService.saveQna("What is Java?", "A programming language.", userId);
+        qnaRepository.save(new Qna("What is your favorite color?", "yellow.", userId));
+        qnaRepository.save(new Qna("What is Spring?", "A Java framework.", userId));
+        qnaRepository.save(new Qna("What is Java?", "A programming language.", userId));
     }
 
 
@@ -74,5 +74,12 @@ public class QnaHistoryEndpointTest {
         Assertions.assertEquals("What is Java?", qnaList[2].getQuestion());
         Assertions.assertEquals("A programming language.", qnaList[2].getAnswer());
         Assertions.assertEquals("testuser", qnaList[2].getUserId());
+    }
+
+
+    @DisplayName("verify asynchronous request")
+    @Test
+    void verifyAsyncRequest() throws Exception {
+
     }
 }

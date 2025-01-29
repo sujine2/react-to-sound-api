@@ -1,4 +1,4 @@
-package org.sujine.reacttosoundapi.qna.dto;
+package org.sujine.reacttosoundapi.stt.dto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -6,10 +6,8 @@ import lombok.Getter;
 @Getter
 public class Response {
     String result;
-    boolean isAnswer;
     boolean isFinal;
 
-    @Override
     public String toString() {
         return "(" + result + "," + isFinal + ")";
     }

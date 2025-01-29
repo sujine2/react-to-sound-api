@@ -1,26 +1,27 @@
-package org.sujine.reacttosoundapi.qna.controller;
+package org.sujine.reacttosoundapi.question.controller;
 
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.sujine.reacttosoundapi.qna.domain.ExampleQuestion;
-import org.sujine.reacttosoundapi.qna.domain.Qna;
-import org.sujine.reacttosoundapi.qna.dto.QuestionRequest;
-import org.sujine.reacttosoundapi.qna.dto.Response;
-import org.sujine.reacttosoundapi.qna.service.QnaService;
-import org.sujine.reacttosoundapi.qna.jwt.JwtUtil;
+import org.sujine.reacttosoundapi.question.domain.ExampleQuestion;
+import org.sujine.reacttosoundapi.question.domain.Qna;
+import org.sujine.reacttosoundapi.question.dto.QuestionRequest;
+import org.sujine.reacttosoundapi.question.dto.Response;
+import org.sujine.reacttosoundapi.question.event.QuestionSubmittedEvent;
+import org.sujine.reacttosoundapi.question.jwt.JwtUtil;
 
 import java.util.List;
 
 @RestController
 public class QnaController {
-    private final QnaService qnaService;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public QnaController(QnaService qnaService) {
-        this.qnaService = qnaService;
+    QnaController(ApplicationEventPublisher eventPublisher) {
+        this.eventPublisher = eventPublisher;
     }
 
     @GetMapping("/token/initialize")
@@ -42,7 +43,7 @@ public class QnaController {
 
     @PostMapping("/ask")
     public ResponseEntity<Response> ask(@CookieValue(value = "jwt", required = false) String jwt, @RequestBody QuestionRequest request)  throws Exception {
-        Response response = qnaService.getAnswer(jwt, request.getQuestion());
+        this.eventPublisher.publishEvent(new QuestionSubmittedEvent(request.getQuestion(), jwt));
         return ResponseEntity.ok(response);
     }
 

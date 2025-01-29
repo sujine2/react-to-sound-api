@@ -1,4 +1,4 @@
-package org.sujine.reacttosoundapi.voiceColor.domain.utils;
+package org.sujine.reacttosoundapi.audio.utils;
 
 public class AudioStreamFormatter {
     public static double[] padArray(double[] array, int length) {
