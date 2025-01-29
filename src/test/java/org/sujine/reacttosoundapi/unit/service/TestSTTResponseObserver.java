@@ -6,16 +6,18 @@ import com.google.cloud.speech.v1.StreamingRecognizeResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
-import org.sujine.reacttosoundapi.qna.dto.Response;
+import org.sujine.reacttosoundapi.ai.AIClient;
+import org.sujine.reacttosoundapi.stt.dto.Text;
 import org.sujine.reacttosoundapi.qna.service.QnaService;
-import org.sujine.reacttosoundapi.qna.service.STTResponseObserver;
+import org.sujine.reacttosoundapi.stt.service.STTResponseObserver;
 
 @Service
 @Profile("test")
 public class TestSTTResponseObserver extends STTResponseObserver{
+    private AIClient aiClient;
     @Autowired
-    public TestSTTResponseObserver(QnaService qnaService) throws Exception {
-        super(qnaService);
+    public TestSTTResponseObserver(AIClient aiClient) throws Exception {
+        this.aiClient = aiClient;
     }
 
     @Override
@@ -32,10 +34,10 @@ public class TestSTTResponseObserver extends STTResponseObserver{
 
                 if (result.getIsFinal()) {
                     this.finalTranscript.append(transcript);
-                    String answer = this.qnaService.requestOpenAI(transcript);
-                    System.out.println("answer:" + new Response(answer, true, false));
+                    String answer = this.aiClient.generateResponse(transcript);
+                    System.out.println("answer:" + new Text(answer, true));
                 } else {
-                    System.out.println(new Response(transcript, true,false).toString());
+                    System.out.println(new Text(transcript, false).toString());
                 }
             }
         } catch (Exception e) {
