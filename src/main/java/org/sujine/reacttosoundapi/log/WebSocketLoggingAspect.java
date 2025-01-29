@@ -1,4 +1,4 @@
-package org.sujine.reacttosoundapi.logging;
+package org.sujine.reacttosoundapi.log;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.*;
