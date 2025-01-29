@@ -8,7 +8,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Setter
 @Getter
-public class QuestionAudioStream {
+public class SpeechAudioStream {
     byte[] rawStream;
     float sampleRate;
     int sampleSize;

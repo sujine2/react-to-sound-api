@@ -1,4 +1,4 @@
-package org.sujine.reacttosoundapi.qna.controller;
+package org.sujine.reacttosoundapi.stt.controller;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -7,13 +7,13 @@ import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.http.server.ServletServerHttpResponse;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.HandshakeInterceptor;
-import org.sujine.reacttosoundapi.qna.jwt.JwtUtil;
+import org.sujine.reacttosoundapi.jwt.JwtUtil;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public class JwtHandshakeInterceptor implements HandshakeInterceptor {
+class JwtHandshakeInterceptor implements HandshakeInterceptor {
 
     @Override
     public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response,

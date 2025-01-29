@@ -1,4 +1,4 @@
-package org.sujine.reacttosoundapi.qna.service;
+package org.sujine.reacttosoundapi.stt.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.gax.rpc.ResponseObserver;
@@ -6,12 +6,11 @@ import com.google.api.gax.rpc.StreamController;
 import com.google.cloud.speech.v1.StreamingRecognitionResult;
 import com.google.cloud.speech.v1.StreamingRecognizeResponse;
 import lombok.Setter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
-import org.sujine.reacttosoundapi.qna.dto.Response;
+import org.sujine.reacttosoundapi.stt.dto.Text;
 
 
 @Service
@@ -19,13 +18,8 @@ import org.sujine.reacttosoundapi.qna.dto.Response;
 @Setter
 public class STTResponseObserver implements ResponseObserver<StreamingRecognizeResponse>{
     private WebSocketSession session;
-    protected final QnaService qnaService;
     protected static final StringBuilder finalTranscript = new StringBuilder();
 
-    @Autowired
-    public STTResponseObserver(QnaService qnaService) {
-        this.qnaService = qnaService;
-    }
 
     @Override
     public void onStart(StreamController controller) {
@@ -43,10 +37,10 @@ public class STTResponseObserver implements ResponseObserver<StreamingRecognizeR
                 if (result.getIsFinal()) {
                     finalTranscript.append(transcript);
                     // send final question
-                    sendMessage(session, new Response(transcript, false, true));
+                    sendMessage(session, new Text(transcript, true));
                 } else {
                     // send intermediate transcript
-                    sendMessage(session, new Response(transcript, false, false));
+                    sendMessage(session, new Text(transcript, false));
                 }
             }
         } catch (Exception e) {
@@ -72,9 +66,9 @@ public class STTResponseObserver implements ResponseObserver<StreamingRecognizeR
         return finalTranscript.toString();
     }
 
-    private void sendMessage(WebSocketSession session, Response response) {
+    private void sendMessage(WebSocketSession session, Text text) {
         try {
-            String jsonMessage = new ObjectMapper().writeValueAsString(response);;
+            String jsonMessage = new ObjectMapper().writeValueAsString(text);;
             session.sendMessage(new TextMessage(jsonMessage));
         } catch (Exception e) {
             System.err.println("Failed to send message: " + e.getMessage());

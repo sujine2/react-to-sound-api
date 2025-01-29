@@ -1,4 +1,4 @@
-package org.sujine.reacttosoundapi.qna.service;
+package org.sujine.reacttosoundapi.stt.service;
 
 import com.google.api.gax.rpc.ClientStream;
 import com.google.api.gax.rpc.ResponseObserver;
@@ -81,15 +81,13 @@ public class STTStreamingService {
 
     private void restartStreaming() throws Exception {
         System.out.println("🔄 Restarting gRPC streaming...");
-
         this.requestObserver = speechClient.streamingRecognizeCallable().splitCall(responseObserver);
         this.requestObserver.send(this.initialRequest);
-
         System.out.println("✅ New requestObserver created. Streaming restarted.");
     }
 
     @PreDestroy
-    public void shutdown() {
+     void shutdown() {
         if (this.speechClient != null) {
             this.speechClient.shutdown();
         }
