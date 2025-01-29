@@ -8,7 +8,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.sujine.reacttosoundapi.ai.AIClient;
 import org.sujine.reacttosoundapi.stt.dto.Text;
-import org.sujine.reacttosoundapi.qna.service.QnaService;
 import org.sujine.reacttosoundapi.stt.service.STTResponseObserver;
 
 @Service

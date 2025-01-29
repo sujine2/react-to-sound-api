@@ -7,10 +7,8 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.*;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.web.client.RestTemplate;
-import org.sujine.reacttosoundapi.ai.AIClient;
 import org.sujine.reacttosoundapi.ai.OpenAI;
 import org.sujine.reacttosoundapi.qna.domain.Qna;
-import org.sujine.reacttosoundapi.qna.dto.Question;
 import org.sujine.reacttosoundapi.qna.repository.QnaRepository;
 
 import javax.sql.DataSource;
