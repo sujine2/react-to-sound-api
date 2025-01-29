@@ -9,7 +9,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Setter
 @Getter
-public class RequestAudioStreamData {
+public class AudioStreamData {
     private double[] rawStream;
     private float sampleRate;
     private int sampleSize;

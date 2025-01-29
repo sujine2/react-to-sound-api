@@ -1,9 +1,9 @@
-package org.sujine.reacttosoundapi.audio.service;
+package org.sujine.reacttosoundapi.voice.service;
 
 import lombok.Getter;
 import org.springframework.stereotype.Service;
-import org.sujine.reacttosoundapi.audio.dto.RequestAudioStreamData;
-import org.sujine.reacttosoundapi.audio.dto.ResponseRGB;
+import org.sujine.reacttosoundapi.voice.dto.AudioStreamData;
+import org.sujine.reacttosoundapi.voice.dto.ResponseRGB;
 
 import javax.annotation.PreDestroy;
 import java.util.concurrent.*;
@@ -13,7 +13,7 @@ import java.util.concurrent.*;
 public class VoiceColorExtractionService {
     private final ExecutorService executorService = Executors.newVirtualThreadPerTaskExecutor();
 
-    public ResponseRGB[] getColorsWithThread(RequestAudioStreamData streamData) throws IllegalArgumentException, ExecutionException, InterruptedException {
+    public ResponseRGB[] getColorsWithThread(AudioStreamData streamData) throws IllegalArgumentException, ExecutionException, InterruptedException {
         ColorExtraction colorExtraction = new ColorExtraction(streamData);
         Future<ResponseRGB[]> responseRGBs = executorService.submit(colorExtraction);
         return responseRGBs.get();

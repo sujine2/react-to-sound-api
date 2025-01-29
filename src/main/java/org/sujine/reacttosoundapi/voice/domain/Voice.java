@@ -1,4 +1,4 @@
-package org.sujine.reacttosoundapi.audio.domain;
+package org.sujine.reacttosoundapi.voice.domain;
 
 import lombok.Getter;
 import org.apache.commons.math3.complex.Complex;
@@ -6,20 +6,20 @@ import org.apache.commons.math3.transform.DftNormalization;
 import org.apache.commons.math3.transform.FastFourierTransformer;
 import org.apache.commons.math3.transform.TransformType;
 import org.jitsi.webrtcvadwrapper.WebRTCVad;
-import org.sujine.reacttosoundapi.audio.utils.AudioStreamFormatter;
+import org.sujine.reacttosoundapi.voice.utils.AudioStreamFormatter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
 @Getter
-public class VoiceStream {
+public class Voice {
     private final double[] stream;
     private final float sampleRate;
     private static final int mode = 3;
     private static final int fftSize = 1024;
     //    private double[] frequencies;
 
-    public VoiceStream(double[] rawStream, float sampleRate) {
+    public Voice(double[] rawStream, float sampleRate) {
         this.sampleRate = sampleRate;
         ArrayList<double[]> onlyVoice = new ArrayList<>();
 

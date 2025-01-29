@@ -1,4 +1,4 @@
-package org.sujine.reacttosoundapi.audio.controller;
+package org.sujine.reacttosoundapi.voice.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;

@@ -1,4 +1,4 @@
-package org.sujine.reacttosoundapi.audio.utils;
+package org.sujine.reacttosoundapi.voice.utils;
 
 public class AudioStreamFormatter {
     public static double[] padArray(double[] array, int length) {

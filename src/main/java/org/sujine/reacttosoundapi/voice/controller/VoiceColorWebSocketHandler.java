@@ -1,10 +1,10 @@
-package org.sujine.reacttosoundapi.audio.controller;
+package org.sujine.reacttosoundapi.voice.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.web.socket.WebSocketMessage;
-import org.sujine.reacttosoundapi.audio.dto.RequestAudioStreamData;
-import org.sujine.reacttosoundapi.audio.dto.ResponseRGB;
-import org.sujine.reacttosoundapi.audio.service.VoiceColorExtractionService;
+import org.sujine.reacttosoundapi.voice.dto.AudioStreamData;
+import org.sujine.reacttosoundapi.voice.dto.ResponseRGB;
+import org.sujine.reacttosoundapi.voice.service.VoiceColorExtractionService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.CloseStatus;
@@ -36,7 +36,7 @@ class VoiceColorWebSocketHandler extends TextWebSocketHandler {
     @Override
     public void handleMessage(WebSocketSession session, WebSocketMessage<?> message) throws Exception {
         try {
-            RequestAudioStreamData requestStream = objectMapper.readValue((String)message.getPayload(), RequestAudioStreamData.class);
+            AudioStreamData requestStream = objectMapper.readValue((String)message.getPayload(), AudioStreamData.class);
 
             // Process the request and send the response
             ResponseRGB[] responseRGBs = voiceColorExtractionService.getColorsWithThread(requestStream);
