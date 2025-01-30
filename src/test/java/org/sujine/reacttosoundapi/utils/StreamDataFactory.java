@@ -1,7 +1,7 @@
 package org.sujine.reacttosoundapi.utils;
 
-import org.sujine.reacttosoundapi.voiceColor.dto.RequestAudioStreamData;
-import org.sujine.reacttosoundapi.qna.dto.QuestionAudioStream;
+import org.sujine.reacttosoundapi.voice.dto.AudioStreamData;
+import org.sujine.reacttosoundapi.stt.dto.SpeechAudioStream;
 import javax.sound.sampled.*;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -37,8 +37,8 @@ public class StreamDataFactory {
         }
     }
 
-    public QuestionAudioStream createSTTRequest() {
-        QuestionAudioStream request = null;
+    public SpeechAudioStream createSTTRequest() {
+        SpeechAudioStream request = null;
         try {
             byte[] inputRawByte = this.createVoiceRawStream();
             AudioInputStream inputStream = this.createAudioInputStream(inputRawByte);
@@ -50,13 +50,12 @@ public class StreamDataFactory {
 //                    16,
 //                    false
 //            );
-            request = new QuestionAudioStream(
+            request = new SpeechAudioStream(
                     inputRawByte,
                     inputStream.getFormat().getSampleRate(),
                     inputStream.getFormat().getSampleSizeInBits(),
                     1,
-                    false,
-                    true
+                    false
             );
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -65,8 +64,8 @@ public class StreamDataFactory {
         return request;
     }
 
-    public RequestAudioStreamData createVoiceColorRequest() {
-        RequestAudioStreamData request = null;
+    public AudioStreamData createVoiceColorRequest() {
+        AudioStreamData request = null;
         try {
             byte[] inputRawByte = this.createVoiceRawStream();
             AudioInputStream inputStream = this.createAudioInputStream(inputRawByte);
@@ -78,7 +77,7 @@ public class StreamDataFactory {
                     16,
                     false
             );
-            request = new RequestAudioStreamData(
+            request = new AudioStreamData(
                     stream,
                     inputStream.getFormat().getSampleRate(),
                     inputStream.getFormat().getSampleSizeInBits(),

@@ -1,37 +1,38 @@
 package org.sujine.reacttosoundapi.unit.controller;
 
 import jakarta.servlet.http.Cookie;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
-import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.sujine.reacttosoundapi.ai.AIClient;
 import org.sujine.reacttosoundapi.qna.controller.QnaController;
+import org.sujine.reacttosoundapi.jwt.JwtUtil;
+import org.sujine.reacttosoundapi.qna.repository.QnaRepository;
 import org.sujine.reacttosoundapi.qna.service.QnaService;
-import org.sujine.reacttosoundapi.qna.jwt.JwtUtil;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(QnaController.class)
+@Import(JwtUtil.class)
 public class QnaHttpEndpointTests {
     @Autowired
     private MockMvc mockMvc;
-
-    @MockBean
+    @MockitoBean
+    private QnaRepository qnaRepository;
+    @MockitoBean
     private QnaService qnaService;
-    @MockBean
-    private JwtUtil jwtUtil;
+    @MockitoBean
+    private AIClient aiClient;
 
-    @BeforeEach
-    void setUp() {
-        ReflectionTestUtils.setField(jwtUtil, "staticSecretKey", "9OE/t4vS+y443u+e7yZ0yuS6rxSjhbFWutzrrylgOVM=");
-    }
+    @Autowired
+    private JwtUtil jwtUtil;
 
     @DisplayName("request JWT first")
     @Test
