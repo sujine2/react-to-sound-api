@@ -40,7 +40,7 @@ public class QnaHttpEndpointTest {
     void setup(@LocalServerPort int port) {
         baseUrl =  String.format("http://localhost:%d", port);
         ResponseEntity<String> response = restTemplate.exchange(
-                baseUrl + "/token/initialize",
+                baseUrl + "/tokens",
                 HttpMethod.GET,
                 null,
                 String.class
@@ -74,7 +74,7 @@ public class QnaHttpEndpointTest {
         headers.add(HttpHeaders.COOKIE, "jwt=" + userId);
         HttpEntity<Qna[]> entity = new HttpEntity<>(headers);
         ResponseEntity<Qna[]> response = restTemplate.exchange(
-                baseUrl + "/history",
+                baseUrl + "/questions/history`",
                 HttpMethod.GET,
                 entity,
                 Qna[].class

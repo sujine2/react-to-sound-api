@@ -26,7 +26,7 @@ public class QnaController {
         this.qnaService = qnaService;
     }
 
-    @GetMapping("/token/initialize")
+    @GetMapping("/tokens")
      ResponseEntity<String> tokenInitialize(HttpServletResponse response, @CookieValue(value = "jwt", required = false) String jwt) {
         if (jwt == null | !JwtUtil.isValidToken(jwt)) {
             String token = JwtUtil.generateToken();
@@ -43,17 +43,17 @@ public class QnaController {
         } else return new ResponseEntity<>("Already exist JWT", new HttpHeaders(), HttpStatus.NOT_ACCEPTABLE);
     }
 
-    @PostMapping("/ask")
+    @PostMapping("/questions/answer")
     CompletableFuture<ResponseEntity<Answer>> ask(@CookieValue(value = "jwt", required = false) String jwt, @RequestBody Question request)  throws Exception {
         return this.qnaService.processQuestion(request.getQuestion(), jwt).thenApply(ResponseEntity::ok);
     }
 
-    @GetMapping("/history")
+    @GetMapping("/questions/answer")
     public List<Qna> history(@CookieValue(value = "jwt", required = false) String jwt) {
         return qnaService.getHistories(jwt);
     }
 
-    @GetMapping("/ex/questions")
+    @GetMapping("/questions/examples")
     public List<ExampleQuestion> exampleQuestions() {
         return qnaService.getExampleQuestions();
     }

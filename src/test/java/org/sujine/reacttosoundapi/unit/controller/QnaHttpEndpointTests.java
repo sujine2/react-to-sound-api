@@ -37,7 +37,7 @@ public class QnaHttpEndpointTests {
     @DisplayName("request JWT first")
     @Test
     void tokenInitializeWithNoJwtCookie() throws Exception {
-        MvcResult result = mockMvc.perform(get("/token/initialize"))
+        MvcResult result = mockMvc.perform(get("/tokens"))
                 .andExpect(status().isOk())
                 .andExpect(content().string("Initialize JWT"))
                 .andReturn();
@@ -61,11 +61,11 @@ public class QnaHttpEndpointTests {
     @DisplayName("request JWT with valid cookie")
     @Test
     void tokenInitializeWithValidJwtCookie() throws Exception {
-        MvcResult result = mockMvc.perform(get("/token/initialize")).andReturn();
+        MvcResult result = mockMvc.perform(get("/tokens")).andReturn();
         String cookies = result.getResponse().getHeader(HttpHeaders.SET_COOKIE);
         String jwt = cookies.split(";")[0].substring(4);
 
-        mockMvc.perform(get("/token/initialize").cookie(new Cookie("jwt", jwt)))
+        mockMvc.perform(get("/tokens").cookie(new Cookie("jwt", jwt)))
                 .andExpect(status().isNotAcceptable())
                 .andExpect(content().string("Already exist JWT"));
     }
